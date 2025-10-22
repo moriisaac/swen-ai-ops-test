@@ -1,0 +1,64 @@
+# ArgoCD Application manifest for SWEN AIOps
+# This enables GitOps-based continuous deployment
+
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: swen-aiops-prod
+  namespace: argocd
+  labels:
+    app: swen-aiops
+    environment: production
+spec:
+  project: default
+  
+  # Source repository
+  source:
+    repoURL: https://gitlab.com/swen/swen-aio-test.git
+    targetRevision: main
+    path: infra/envs/prod
+    
+    # Terraform plugin for ArgoCD
+    plugin:
+      name: terraform
+      env:
+        - name: TF_VAR_FILE
+          value: terraform.tfvars
+  
+  # Destination cluster
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: swen-aiops
+  
+  # Sync policy
+  syncPolicy:
+    automated:
+      prune: true      # Remove resources that are no longer defined
+      selfHeal: true   # Automatically sync when drift is detected
+      allowEmpty: false
+    
+    syncOptions:
+      - CreateNamespace=true
+      - PrunePropagationPolicy=foreground
+      - PruneLast=true
+    
+    retry:
+      limit: 5
+      backoff:
+        duration: 5s
+        factor: 2
+        maxDuration: 3m
+  
+  # Health assessment
+  ignoreDifferences:
+    - group: "*"
+      kind: Secret
+      jsonPointers:
+        - /data
+  
+  # Notification settings
+  info:
+    - name: 'AI-Managed'
+      value: 'true'
+    - name: 'Cost-Optimization'
+      value: 'enabled'

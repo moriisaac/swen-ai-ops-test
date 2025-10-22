@@ -1,0 +1,84 @@
+# Prometheus Configuration for SWEN AIOps
+# Scrapes metrics from dashboard API, AI engine, and infrastructure
+
+global:
+  scrape_interval: 15s
+  evaluation_interval: 15s
+  external_labels:
+    cluster: 'swen-aiops'
+    environment: 'production'
+
+# Alertmanager configuration
+alerting:
+  alertmanagers:
+    - static_configs:
+        - targets:
+            - 'alertmanager:9093'
+
+# Load rules once and periodically evaluate them
+rule_files:
+  - "alerts/*.yml"
+
+# Scrape configurations
+scrape_configs:
+  # Dashboard API metrics
+  - job_name: 'swen-dashboard-api'
+    static_configs:
+      - targets: ['dashboard-api:8000']
+    metrics_path: '/metrics'
+    scrape_interval: 10s
+
+  # AI Engine metrics
+  - job_name: 'swen-ai-engine'
+    static_configs:
+      - targets: ['ai-engine:9100']
+    scrape_interval: 30s
+
+  # Prometheus self-monitoring
+  - job_name: 'prometheus'
+    static_configs:
+      - targets: ['localhost:9090']
+
+  # Node exporters (infrastructure monitoring)
+  - job_name: 'node-exporter'
+    static_configs:
+      - targets:
+          - 'node-exporter-aws:9100'
+          - 'node-exporter-alibaba:9100'
+    relabel_configs:
+      - source_labels: [__address__]
+        regex: 'node-exporter-([^:]+):.*'
+        target_label: provider
+        replacement: '$1'
+
+  # AWS CloudWatch metrics (via cloudwatch-exporter)
+  - job_name: 'cloudwatch-exporter'
+    static_configs:
+      - targets: ['cloudwatch-exporter:9106']
+    scrape_interval: 60s
+
+  # Kubernetes metrics (if using k8s)
+  - job_name: 'kubernetes-pods'
+    kubernetes_sd_configs:
+      - role: pod
+    relabel_configs:
+      - source_labels: [__meta_kubernetes_pod_annotation_prometheus_io_scrape]
+        action: keep
+        regex: true
+      - source_labels: [__meta_kubernetes_pod_annotation_prometheus_io_path]
+        action: replace
+        target_label: __metrics_path__
+        regex: (.+)
+      - source_labels: [__address__, __meta_kubernetes_pod_annotation_prometheus_io_port]
+        action: replace
+        regex: ([^:]+)(?::\d+)?;(\d+)
+        replacement: $1:$2
+        target_label: __address__
+      - action: labelmap
+        regex: __meta_kubernetes_pod_label_(.+)
+      - source_labels: [__meta_kubernetes_namespace]
+        action: replace
+        target_label: kubernetes_namespace
+      - source_labels: [__meta_kubernetes_pod_name]
+        action: replace
+        target_label: kubernetes_pod_name

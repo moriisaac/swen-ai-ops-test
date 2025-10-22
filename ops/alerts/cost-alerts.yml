@@ -1,0 +1,125 @@
+# Prometheus Alert Rules for Cost and Performance Monitoring
+
+groups:
+  - name: cost_alerts
+    interval: 30s
+    rules:
+      # High cost alert
+      - alert: HighServiceCost
+        expr: swen_service_cost > 2.0
+        for: 5m
+        labels:
+          severity: warning
+          category: cost
+        annotations:
+          summary: "High cost detected for {{ $labels.service }}"
+          description: "Service {{ $labels.service }} on {{ $labels.provider }} has cost {{ $value }} $/hr (threshold: 2.0)"
+
+      # Cost spike alert
+      - alert: CostSpike
+        expr: rate(swen_service_cost[5m]) > 0.5
+        for: 2m
+        labels:
+          severity: critical
+          category: cost
+        annotations:
+          summary: "Cost spike detected for {{ $labels.service }}"
+          description: "Service {{ $labels.service }} cost increased by {{ $value }} $/hr in 5 minutes"
+
+      # High latency alert
+      - alert: HighLatency
+        expr: swen_service_latency > 300
+        for: 5m
+        labels:
+          severity: warning
+          category: performance
+        annotations:
+          summary: "High latency for {{ $labels.service }}"
+          description: "Service {{ $labels.service }} on {{ $labels.provider }} has latency {{ $value }}ms (threshold: 300ms)"
+
+      # GPU unavailability
+      - alert: NoGPUsAvailable
+        expr: swen_service_gpus == 0
+        for: 10m
+        labels:
+          severity: info
+          category: resources
+        annotations:
+          summary: "No GPUs available for {{ $labels.service }}"
+          description: "Service {{ $labels.service }} on {{ $labels.provider }} has no GPUs available"
+
+  - name: ai_engine_alerts
+    interval: 60s
+    rules:
+      # AI engine not making decisions
+      - alert: AIEngineStale
+        expr: time() - swen_ai_last_decision_timestamp > 600
+        for: 5m
+        labels:
+          severity: warning
+          category: ai
+        annotations:
+          summary: "AI engine hasn't made decisions recently"
+          description: "No AI decisions in the last 10 minutes"
+
+      # Low confidence decisions
+      - alert: LowConfidenceDecisions
+        expr: swen_ai_decision_confidence < 0.7
+        for: 5m
+        labels:
+          severity: info
+          category: ai
+        annotations:
+          summary: "Low confidence AI decision"
+          description: "AI decision for {{ $labels.service }} has confidence {{ $value }} (threshold: 0.7)"
+
+  - name: infrastructure_alerts
+    interval: 30s
+    rules:
+      # Service down
+      - alert: ServiceDown
+        expr: up{job=~"swen-.*"} == 0
+        for: 2m
+        labels:
+          severity: critical
+          category: availability
+        annotations:
+          summary: "Service {{ $labels.job }} is down"
+          description: "Service {{ $labels.job }} has been down for more than 2 minutes"
+
+      # High CPU usage
+      - alert: HighCPUUsage
+        expr: 100 - (avg by (instance) (irate(node_cpu_seconds_total{mode="idle"}[5m])) * 100) > 80
+        for: 5m
+        labels:
+          severity: warning
+          category: resources
+        annotations:
+          summary: "High CPU usage on {{ $labels.instance }}"
+          description: "CPU usage is {{ $value }}% (threshold: 80%)"
+
+      # High memory usage
+      - alert: HighMemoryUsage
+        expr: (1 - (node_memory_MemAvailable_bytes / node_memory_MemTotal_bytes)) * 100 > 85
+        for: 5m
+        labels:
+          severity: warning
+          category: resources
+        annotations:
+          summary: "High memory usage on {{ $labels.instance }}"
+          description: "Memory usage is {{ $value }}% (threshold: 85%)"
+
+  - name: self_healing
+    interval: 30s
+    rules:
+      # Trigger self-healing for persistent high latency
+      - alert: TriggerSelfHealing
+        expr: swen_service_latency > 500
+        for: 10m
+        labels:
+          severity: critical
+          category: self-healing
+          action: reroute
+        annotations:
+          summary: "Triggering self-healing for {{ $labels.service }}"
+          description: "Service {{ $labels.service }} has persistent high latency ({{ $value }}ms). Initiating provider reroute."

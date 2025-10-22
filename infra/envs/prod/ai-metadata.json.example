@@ -1,0 +1,43 @@
+{
+  "service": "service1",
+  "timestamp": "2025-10-22T20:00:00Z",
+  "cost_delta": 0.03,
+  "confidence": 0.92,
+  "predicted_savings": 75.50,
+  "change_type": "provider_change",
+  "affects_stateful": false,
+  "traffic_impact_percent": 5.0,
+  "current_provider": "aws",
+  "recommended_provider": "alibaba",
+  "explanation": "Recommended moving service1 from aws to alibaba due to better cost/performance ratio. AWS cost: $1.30/hr, Alibaba cost: $0.85/hr. Latency difference: 15ms. Predicted monthly savings: $328.",
+  "metrics_snapshot": {
+    "aws": {
+      "cost": 1.30,
+      "latency": 85.3,
+      "credits": 0.2,
+      "available_gpus": 2
+    },
+    "alibaba": {
+      "cost": 0.85,
+      "latency": 100.5,
+      "credits": 0.6,
+      "available_gpus": 1
+    }
+  },
+  "scores": {
+    "aws": {
+      "total": 0.78,
+      "cost": 0.65,
+      "latency": 0.85,
+      "credits": 0.80,
+      "gpu": 0.90
+    },
+    "alibaba": {
+      "total": 0.92,
+      "cost": 0.95,
+      "latency": 0.82,
+      "credits": 0.98,
+      "gpu": 0.75
+    }
+  }
+}

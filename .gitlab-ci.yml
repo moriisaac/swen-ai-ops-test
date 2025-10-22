@@ -1,0 +1,174 @@
+# GitLab CI/CD Pipeline for SWEN AIOps
+# Implements GitOps automation with AI-driven infrastructure changes
+
+stages:
+  - validate
+  - policy-check
+  - plan
+  - apply
+  - notify
+
+variables:
+  TF_ROOT: ${CI_PROJECT_DIR}/infra/envs/prod
+  TF_STATE_NAME: prod
+  TF_VERSION: "1.5.0"
+
+# Cache Terraform plugins
+cache:
+  key: "${TF_ROOT}"
+  paths:
+    - ${TF_ROOT}/.terraform
+
+# Validate Terraform configuration
+validate:
+  stage: validate
+  image: hashicorp/terraform:${TF_VERSION}
+  script:
+    - cd ${TF_ROOT}
+    - terraform --version
+    - terraform init -backend=false
+    - terraform validate
+    - terraform fmt -check -recursive
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "push"'
+    - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
+
+# Policy gate for AI recommendations
+policy-check:
+  stage: policy-check
+  image: python:3.9-slim
+  script:
+    - |
+      echo "Checking AI recommendation policy..."
+      
+      # Check if this is an AI recommendation branch
+      if [[ "$CI_COMMIT_BRANCH" =~ ^ai-recommendation/.* ]]; then
+        echo "AI recommendation branch detected"
+        
+        # Check for metadata file
+        if [ -f "${TF_ROOT}/ai-metadata.json" ]; then
+          python3 ops/policy_gate.py
+          POLICY_EXIT_CODE=$?
+          
+          if [ $POLICY_EXIT_CODE -eq 0 ]; then
+            echo "AUTO-APPROVE: Change meets policy criteria"
+            echo "AUTO_APPROVE=true" >> policy.env
+          else
+            echo "MANUAL-APPROVAL: Change requires human review"
+            echo "AUTO_APPROVE=false" >> policy.env
+          fi
+        else
+          echo "No metadata found, defaulting to manual approval"
+          echo "AUTO_APPROVE=false" >> policy.env
+        fi
+      else
+        echo "Regular branch, proceeding with standard workflow"
+        echo "AUTO_APPROVE=false" >> policy.env
+      fi
+  artifacts:
+    reports:
+      dotenv: policy.env
+  rules:
+    - if: '$CI_COMMIT_BRANCH =~ /^ai-recommendation\/.*/'
+    - if: '$CI_COMMIT_BRANCH == "main"'
+
+# Terraform plan
+plan:
+  stage: plan
+  image: hashicorp/terraform:${TF_VERSION}
+  script:
+    - cd ${TF_ROOT}
+    - terraform init
+    - terraform plan -out=tfplan
+    - terraform show -json tfplan > plan.json
+    - |
+      echo "=== Terraform Plan Summary ==="
+      terraform show tfplan
+  artifacts:
+    paths:
+      - ${TF_ROOT}/tfplan
+      - ${TF_ROOT}/plan.json
+    expire_in: 1 week
+  dependencies:
+    - validate
+  rules:
+    - if: '$CI_COMMIT_BRANCH == "main"'
+    - if: '$CI_COMMIT_BRANCH =~ /^ai-recommendation\/.*/'
+
+# Apply changes (manual by default, auto for approved AI changes)
+apply:
+  stage: apply
+  image: hashicorp/terraform:${TF_VERSION}
+  script:
+    - cd ${TF_ROOT}
+    - terraform init
+    - |
+      if [ "$AUTO_APPROVE" == "true" ]; then
+        echo "Auto-applying approved AI recommendation..."
+        terraform apply -auto-approve tfplan
+      else
+        echo "Manual approval required"
+        terraform apply tfplan
+      fi
+    - terraform output -json > outputs.json
+  artifacts:
+    paths:
+      - ${TF_ROOT}/outputs.json
+    expire_in: 30 days
+  dependencies:
+    - plan
+    - policy-check
+  rules:
+    - if: '$CI_COMMIT_BRANCH == "main" && $AUTO_APPROVE == "true"'
+      when: on_success
+    - if: '$CI_COMMIT_BRANCH == "main"'
+      when: manual
+    - if: '$CI_COMMIT_BRANCH =~ /^ai-recommendation\/.*/ && $AUTO_APPROVE == "true"'
+      when: on_success
+    - if: '$CI_COMMIT_BRANCH =~ /^ai-recommendation\/.*/'
+      when: manual
+  environment:
+    name: production
+    action: start
+
+# Notify on completion
+notify:
+  stage: notify
+  image: curlimages/curl:latest
+  script:
+    - |
+      echo "Deployment completed for branch: $CI_COMMIT_BRANCH"
+      echo "Commit: $CI_COMMIT_SHA"
+      
+      # Send notification to dashboard API (if available)
+      if [ -n "$DASHBOARD_WEBHOOK_URL" ]; then
+        curl -X POST "$DASHBOARD_WEBHOOK_URL/api/deployments" \
+          -H "Content-Type: application/json" \
+          -d "{
+            \"branch\": \"$CI_COMMIT_BRANCH\",
+            \"commit\": \"$CI_COMMIT_SHA\",
+            \"status\": \"success\",
+            \"timestamp\": \"$(date -u +%Y-%m-%dT%H:%M:%SZ)\"
+          }"
+      fi
+  rules:
+    - if: '$CI_COMMIT_BRANCH == "main"'
+      when: on_success
+    - if: '$CI_COMMIT_BRANCH =~ /^ai-recommendation\/.*/'
+      when: on_success
+
+# Rollback job (manual trigger only)
+rollback:
+  stage: apply
+  image: hashicorp/terraform:${TF_VERSION}
+  script:
+    - cd ${TF_ROOT}
+    - terraform init
+    - echo "Rolling back to previous state..."
+    - terraform apply -auto-approve
+  when: manual
+  rules:
+    - if: '$CI_COMMIT_BRANCH == "main"'
+  environment:
+    name: production
+    action: stop
