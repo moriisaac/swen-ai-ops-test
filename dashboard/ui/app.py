@@ -59,7 +59,9 @@ st.markdown("""
 
 # Configuration
 import os
-API_URL = st.sidebar.text_input("API URL", os.getenv("API_URL", "http://localhost:8001"))
+# Connect to deployed Streamlit apps
+API_URL = st.sidebar.text_input("API URL", os.getenv("API_URL", "https://swen-aiops-api.streamlit.app"))
+AI_ENGINE_URL = st.sidebar.text_input("AI Engine URL", os.getenv("AI_ENGINE_URL", "https://swen-aiops-engine.streamlit.app"))
 REFRESH_INTERVAL = st.sidebar.slider("Refresh Interval (seconds)", 5, 60, 10)
 
 # Helper functions
@@ -225,15 +227,34 @@ def main():
     with st.sidebar:
         st.header("⚙️ Controls")
         
-        # Demo mode indicator
+        # Connection status indicator
+        st.subheader("🔗 Service Status")
+        
+        # Check API connection
         try:
             health_data = fetch_data("/healthz")
             if health_data and health_data.get("status") == "ok":
-                st.success("🟢 Live API Connected")
+                st.success("🟢 API Connected")
             else:
-                st.info("🟡 Demo Mode (Mock Data)")
+                st.warning("🟡 API Demo Mode")
         except:
-            st.info("🟡 Demo Mode (Mock Data)")
+            st.warning("🟡 API Demo Mode")
+        
+        # Check AI Engine connection
+        try:
+            import requests
+            response = requests.get(f"{AI_ENGINE_URL}", timeout=3)
+            if response.status_code == 200:
+                st.success("🟢 AI Engine Connected")
+            else:
+                st.warning("🟡 AI Engine Offline")
+        except:
+            st.warning("🟡 AI Engine Offline")
+        
+        # Service URLs
+        st.markdown("**Service URLs:**")
+        st.code(f"API: {API_URL}")
+        st.code(f"AI Engine: {AI_ENGINE_URL}")
         
         st.markdown("---")
         
