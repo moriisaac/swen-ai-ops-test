@@ -26,19 +26,19 @@ Human Developer - Isaac Mori(Me)
 **AI Role:** Code review and optimization and implementation partner
 
 **AI Contributions:**
-   - Accelerated development by ~30%
-   - Reduced boilerplate code writing
-   - Improved code consistency
-   **Examples:**
-   ```python
-   # Copilot suggested this scoring function structure
-   def calculate_scores(self, metrics: dict) -> Dict[str, float]:
-      scores = {}
-      for provider, data in metrics.items():
+- Accelerated development by ~30%
+- Reduced boilerplate code writing
+- Improved code consistency
+**Examples:**
+```python
+# Copilot suggested this scoring function structure
+def calculate_scores(self, metrics: dict) -> Dict[str, float]:
+    scores = {}
+    for provider, data in metrics.items():
          # Copilot optimized the scoring logic
-         cost_score = 1 - min(data.get('cost', 0) / 2.0, 1.0)
-         # ...
-   ```
+        cost_score = 1 - min(data.get('cost', 0) / 2.0, 1.0)
+        # ...
+```
 
 
 **Human Contributions:**
