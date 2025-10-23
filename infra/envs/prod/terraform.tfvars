@@ -22,6 +22,6 @@ service2_region   = "us-east-1"
 service2_instance = "t3.medium"
 
 # Service 3 - AI-managed placement
-service3_provider = "alibaba"
+service3_provider = "aws"
 service3_region   = "ap-southeast-1"
 service3_instance = "t3.medium"
