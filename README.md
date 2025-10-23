@@ -6,11 +6,13 @@
 [![Python](https://img.shields.io/badge/python-3.8+-blue.svg)](https://www.python.org/downloads/)
 [![Terraform](https://img.shields.io/badge/terraform-1.0+-purple.svg)](https://www.terraform.io/)
 
-## 🌐 Live Dashboard
+## 🌐 Live Platform
 
-**🚀 [View Live Dashboard](https://swen-aiops-platform.streamlit.app)** *(Deploy to Streamlit Cloud)*
+**🚀 [Professional Dashboard](https://swen-aiops-dashboard.streamlit.app)** - Main monitoring interface
+**🔌 [API Server](https://swen-aiops-api.streamlit.app)** - Data service and telemetry
+**🤖 [AI Engine](https://swen-aiops-engine.streamlit.app)** - AI decision engine
 
-*Note: The live dashboard runs in demo mode with mock data. For full functionality with live telemetry, deploy the complete platform locally or to a cloud provider.*
+*All apps run on Streamlit Cloud with simulated data that demonstrates the full platform capabilities.*
 
 ## 📋 Table of Contents
 
@@ -109,6 +111,36 @@ SWEN AIOps is an intelligent infrastructure platform that:
 
 ---
 
+
+## 📊 Data & Deployment
+
+### 🌐 Streamlit Cloud Deployment (Recommended)
+
+The platform is deployed as **three separate Streamlit apps** on Streamlit Cloud:
+
+1. **Professional Dashboard** (`professional_dashboard.py`) - Main UI with tabs for overview, AI decisions, cost analysis, telemetry, and system health
+2. **API Server** (`api_server.py`) - Serves telemetry data, AI decisions, and cost analysis through query parameters
+3. **AI Engine** (`ai_engine_app.py`) - Simulates AI decision-making and telemetry generation
+
+**Data Flow:** Dashboard ↔ API Server ↔ AI Engine
+
+### 🏠 Local Development
+
+For local development, the platform uses:
+
+- **Real Telemetry Generation**: `ai-engine/simulator.py` generates realistic simulated data with market fluctuations
+- **FastAPI Backend**: `dashboard/api/main.py` serves the telemetry data
+- **Streamlit UI**: `dashboard/ui/app.py` displays the data
+- **Mock Data Fallback**: All components have mock data fallbacks for demonstration
+
+**Start locally:** `./start-all.sh`
+
+### 📈 Data Sources
+
+- **Cloud Deployment**: Simulated data that mimics real cloud metrics (cost, latency, CPU, memory, network I/O)
+- **Local Development**: Realistic telemetry generation with random fluctuations and market changes
+- **Fallback Mode**: Mock data ensures the platform works even when services are offline
+
 ## 🚀 Quick Start
 
 ### Prerequisites
@@ -140,23 +172,39 @@ open http://localhost:8501
 
 That's it! The platform is now running locally.
 
-### 🌐 Streamlit Cloud Deployment (Live Dashboard)
+### 🌐 Streamlit Cloud Deployment (Three Apps)
 
-Deploy the dashboard to Streamlit Cloud for a public live link:
+Deploy all three apps to Streamlit Cloud for a complete platform:
 
 1. **Visit:** https://share.streamlit.io
 2. **Sign in** with your GitHub or GitLab account
-3. **Click "New app"**
-4. **Select repository:** `moriisaac/swen-ai-ops-test`
-5. **Set branch:** `main`
-6. **Set main file path:** `dashboard/ui/app.py`
-7. **Click "Deploy"**
-8. **Copy your live URL:** `https://[app-name].streamlit.app`
+3. **Deploy Professional Dashboard:**
+   - Click "New app"
+   - Repository: `moriisaac/swen-ai-ops-test`
+   - Branch: `main`
+   - Main file: `professional_dashboard.py`
+   - App name: `swen-aiops-dashboard`
+4. **Deploy API Server:**
+   - Click "New app"
+   - Repository: `moriisaac/swen-ai-ops-test`
+   - Branch: `main`
+   - Main file: `api_server.py`
+   - App name: `swen-aiops-api`
+5. **Deploy AI Engine:**
+   - Click "New app"
+   - Repository: `moriisaac/swen-ai-ops-test`
+   - Branch: `main`
+   - Main file: `ai_engine_app.py`
+   - App name: `swen-aiops-engine`
+6. **Connect the apps:**
+   - In the dashboard, set API URL to your API server URL
+   - Set AI Engine URL to your AI engine URL
+2. **Sign in** with your GitHub or GitLab account
 
 **Configuration Notes:**
-- The dashboard will run in **demo mode** with mock data
-- For full functionality, deploy the complete platform (API + AI Engine)
-- Mock data demonstrates all features without requiring backend services
+- All apps run with **simulated data** that demonstrates full platform capabilities
+- The three apps work together to provide a complete AIOps platform
+- Simulated data includes realistic telemetry, AI decisions, and cost analysis
 
 ### Manual Setup (Alternative)
 
