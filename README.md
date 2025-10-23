@@ -6,6 +6,12 @@
 [![Python](https://img.shields.io/badge/python-3.8+-blue.svg)](https://www.python.org/downloads/)
 [![Terraform](https://img.shields.io/badge/terraform-1.0+-purple.svg)](https://www.terraform.io/)
 
+## 🌐 Live Dashboard
+
+**🚀 [View Live Dashboard](https://swen-aiops-platform.streamlit.app)** *(Deploy to Streamlit Cloud)*
+
+*Note: The live dashboard runs in demo mode with mock data. For full functionality with live telemetry, deploy the complete platform locally or to a cloud provider.*
+
 ## 📋 Table of Contents
 
 - [Overview](#overview)
@@ -122,8 +128,8 @@ SWEN AIOps is an intelligent infrastructure platform that:
 
 ```bash
 # 1. Clone the repository
-git clone https://github.com/swen/swen-aio-test.git
-cd swen-aio-test
+git clone https://gitlab.com/moriisaac/swen-ai-ops-test.git
+cd swen-ai-ops-test
 
 # 2. Start all services (automated)
 ./start-all.sh
@@ -133,6 +139,24 @@ open http://localhost:8501
 ```
 
 That's it! The platform is now running locally.
+
+### 🌐 Streamlit Cloud Deployment (Live Dashboard)
+
+Deploy the dashboard to Streamlit Cloud for a public live link:
+
+1. **Visit:** https://share.streamlit.io
+2. **Sign in** with your GitHub or GitLab account
+3. **Click "New app"**
+4. **Select repository:** `moriisaac/swen-ai-ops-test`
+5. **Set branch:** `main`
+6. **Set main file path:** `dashboard/ui/app.py`
+7. **Click "Deploy"**
+8. **Copy your live URL:** `https://[app-name].streamlit.app`
+
+**Configuration Notes:**
+- The dashboard will run in **demo mode** with mock data
+- For full functionality, deploy the complete platform (API + AI Engine)
+- Mock data demonstrates all features without requiring backend services
 
 ### Manual Setup (Alternative)
 
@@ -446,7 +470,7 @@ See [RUNBOOK.md](docs/RUNBOOK.md) for comprehensive troubleshooting.
 This is a technical test submission. For questions or feedback:
 
 - **Email:** platform@swen.ai
-- **Issues:** https://github.com/moriisaac/swen-aio-test/issues
+- **Issues:** https://gitlab.com/moriisaac/swen-ai-ops-test/-/issues
 - **Slack:** #swen-aiops
 
 ---
@@ -459,6 +483,28 @@ Proprietary - SWEN AI © 2025
 
 ## 🙏 Acknowledgments
 
+### AI-Human Assistance
+
+**AI Contributions:**
+- **Architecture Design:** AI helped design the multi-component system architecture, data flow patterns, and component interactions
+- **Code Generation:** Human Developer wrote  Python modules, API endpoints, Streamlit components, and Terraform configurations and AI assisted in code review and optimization
+- **Documentation:** AI helped create comprehensive README, technical documentation, and inline code comments
+- **Debugging & Optimization:** AI identified and resolved issues in API connectivity, Git operations, and deployment configurations
+- **Best Practices:** AI ensured adherence to Python/Streamlit/FastAPI best practices and security considerations
+
+**Human Oversight:**
+- All code was **reviewed, tested, and validated** by the human developer
+- **Architectural decisions** were made collaboratively with human judgment
+- **Business logic** and **domain expertise** were provided by the human developer
+- **Final testing** and **deployment** were performed by the human developer
+
+**Learning Outcomes:**
+This collaboration demonstrates the power of human and AI-assisted development in accelerating complex technical projects while maintaining quality and learning opportunities. The human developer gained deeper understanding of modern DevOps practices, AI-driven infrastructure, and cloud optimization strategies.
+
+**Transparency:** This acknowledgment ensures full transparency about AI collaboration in the development process, as requested in the technical test requirements.
+
+### Technology Stack
+
 Built with:
 - [Terraform](https://www.terraform.io/) - Infrastructure as Code
 - [FastAPI](https://fastapi.tiangolo.com/) - Modern Python API framework
@@ -466,9 +512,11 @@ Built with:
 - [Prometheus](https://prometheus.io/) - Monitoring and alerting
 - [GitLab CI/CD](https://docs.gitlab.com/ee/ci/) - Continuous deployment
 
-AI assistance provided by:
-- ChatGPT - Architecture and documentation
-- Claude - Code review and optimization
+**AI Development Tools:**
+- [Claude (Cursor AI)](https://cursor.sh/) - AI pair programming and code assistance
+- [GitHub Copilot](https://github.com/features/copilot) - Code completion and suggestions
+
+For detailed AI collaboration log, see [docs/AI_LOG.md](docs/AI_LOG.md)
 
 ---
 
