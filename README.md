@@ -23,7 +23,7 @@
 - [Project Structure](#project-structure)
 - [Components](#components)
 - [Documentation](#documentation)
-- [Demo](#demo)
+- [Pipeline Tutorial](#pipeline-tutorial)- [Demo](#demo)
 - [Contributing](#contributing)
 
 ---
@@ -390,6 +390,42 @@ swen-aio-test/
 - `ops/policy_gate.py` - Policy evaluation
 
 ---
+
+
+## 🔄 Pipeline Tutorial
+
+**Complete AIOps + GitOps Flow Demonstration**
+
+This tutorial shows the complete pipeline from telemetry collection to dashboard updates:
+
+📊 **Telemetry** → 🤖 **AI Analysis** → 📝 **Decision** → 🏗️ **Infrastructure** → 📤 **Git Commit** → 🚀 **GitOps Deploy** → 📈 **Dashboard Update**
+
+### 🎬 Live Demo
+
+1. **Visit the Live Apps:**
+   - [Professional Dashboard](https://swen-aiops-dashboard.streamlit.app)
+   - [API Server](https://swen-aiops-api.streamlit.app)
+   - [AI Engine](https://swen-aiops-engine.streamlit.app)
+
+2. **Follow the Pipeline:**
+   - Generate telemetry data in AI Engine
+   - Make AI decisions
+   - Monitor dashboard updates
+   - Check Git commits for infrastructure changes
+
+### 📖 Detailed Tutorials
+
+- **[Complete Pipeline Tutorial](docs/PIPELINE_TUTORIAL.md)** - Step-by-step walkthrough
+- **[Pipeline Flow Diagram](docs/PIPELINE_FLOW.md)** - Visual representation
+- **[Recording Script](record_pipeline.py)** - Automated demo script
+
+### 🎯 Key Features Demonstrated
+
+✅ **Automated Decision Making** - AI analyzes telemetry and makes optimization decisions
+✅ **GitOps Integration** - All changes tracked and deployed via Git
+✅ **Real-time Monitoring** - Dashboard shows live pipeline status
+✅ **Cost Optimization** - Measurable savings through intelligent provider switching
+✅ **Audit Trail** - Complete history of all changes and decisions
 
 ## 📚 Documentation
 
