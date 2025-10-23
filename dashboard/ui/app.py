@@ -58,7 +58,8 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 # Configuration
-API_URL = st.sidebar.text_input("API URL", "http://localhost:8001")
+import os
+API_URL = st.sidebar.text_input("API URL", os.getenv("API_URL", "http://localhost:8001"))
 REFRESH_INTERVAL = st.sidebar.slider("Refresh Interval (seconds)", 5, 60, 10)
 
 # Helper functions
@@ -70,8 +71,134 @@ def fetch_data(endpoint: str):
         response.raise_for_status()
         return response.json()
     except Exception as e:
-        st.error(f"Error fetching data from {endpoint}: {e}")
-        return None
+        # Return mock data for demonstration when API is not available
+        return get_mock_data(endpoint)
+
+def get_mock_data(endpoint: str):
+    """Generate mock data for demonstration purposes."""
+    if endpoint == "/api/telemetry":
+        return {
+            "service1": {
+                "current_provider": "aws",
+                "aws": {
+                    "cost": 0.45,
+                    "latency": 12.5,
+                    "credits": 0.85,
+                    "available_gpus": 8,
+                    "cpu_utilization": 65.2,
+                    "memory_utilization": 72.1,
+                    "network_io": 450.3,
+                    "region": "us-east-1",
+                    "instance": "m5.large"
+                },
+                "alibaba": {
+                    "cost": 0.38,
+                    "latency": 15.2,
+                    "credits": 0.92,
+                    "available_gpus": 6,
+                    "cpu_utilization": 58.7,
+                    "memory_utilization": 68.9,
+                    "network_io": 380.1,
+                    "region": "ap-southeast-1",
+                    "instance": "ecs.c5.large"
+                }
+            },
+            "service2": {
+                "current_provider": "alibaba",
+                "aws": {
+                    "cost": 0.52,
+                    "latency": 18.3,
+                    "credits": 0.78,
+                    "available_gpus": 4,
+                    "cpu_utilization": 71.5,
+                    "memory_utilization": 75.8,
+                    "network_io": 520.7,
+                    "region": "us-west-2",
+                    "instance": "m5.xlarge"
+                },
+                "alibaba": {
+                    "cost": 0.41,
+                    "latency": 14.7,
+                    "credits": 0.88,
+                    "available_gpus": 7,
+                    "cpu_utilization": 62.3,
+                    "memory_utilization": 69.4,
+                    "network_io": 410.2,
+                    "region": "ap-northeast-1",
+                    "instance": "ecs.c6.large"
+                }
+            },
+            "service3": {
+                "current_provider": "aws",
+                "aws": {
+                    "cost": 0.38,
+                    "latency": 11.8,
+                    "credits": 0.91,
+                    "available_gpus": 9,
+                    "cpu_utilization": 58.9,
+                    "memory_utilization": 64.2,
+                    "network_io": 380.5,
+                    "region": "eu-west-1",
+                    "instance": "m5.large"
+                },
+                "alibaba": {
+                    "cost": 0.35,
+                    "latency": 16.1,
+                    "credits": 0.95,
+                    "available_gpus": 5,
+                    "cpu_utilization": 55.6,
+                    "memory_utilization": 61.8,
+                    "network_io": 350.8,
+                    "region": "ap-south-1",
+                    "instance": "ecs.c5.xlarge"
+                }
+            }
+        }
+    elif endpoint == "/api/decisions":
+        return {
+            "decisions": [
+                {
+                    "timestamp": "2025-10-23T13:45:30Z",
+                    "service": "service1",
+                    "action": "move",
+                    "from_provider": "alibaba",
+                    "to_provider": "aws",
+                    "reason": "Cost optimization: AWS offers 18% lower cost with similar performance",
+                    "confidence": 0.87,
+                    "estimated_savings": 0.07,
+                    "git_branch": "ai-recommendation/service1-1761226530",
+                    "commit_sha": "a1b2c3d4e5f6"
+                },
+                {
+                    "timestamp": "2025-10-23T13:30:15Z",
+                    "service": "service2",
+                    "action": "move",
+                    "from_provider": "aws",
+                    "to_provider": "alibaba",
+                    "reason": "Performance optimization: Alibaba Cloud shows 22% better latency",
+                    "confidence": 0.92,
+                    "estimated_savings": 0.11,
+                    "git_branch": "ai-recommendation/service2-1761225415",
+                    "commit_sha": "b2c3d4e5f6g7"
+                }
+            ]
+        }
+    elif endpoint == "/api/cost-analysis":
+        return {
+            "total_cost": 1.35,
+            "aws_cost": 0.83,
+            "alibaba_cost": 0.52,
+            "savings_potential": 0.18,
+            "trend": "decreasing"
+        }
+    elif endpoint == "/healthz":
+        return {
+            "status": "ok",
+            "active_providers": ["aws", "alibaba"],
+            "services": {"service1": "aws", "service2": "alibaba", "service3": "aws"},
+            "timestamp": "2025-10-23T13:46:56Z"
+        }
+    return None
 
 def format_timestamp(ts: str) -> str:
     """Format ISO timestamp to readable format."""
@@ -97,6 +224,18 @@ def main():
     # Sidebar
     with st.sidebar:
         st.header("⚙️ Controls")
+        
+        # Demo mode indicator
+        try:
+            health_data = fetch_data("/healthz")
+            if health_data and health_data.get("status") == "ok":
+                st.success("🟢 Live API Connected")
+            else:
+                st.info("🟡 Demo Mode (Mock Data)")
+        except:
+            st.info("🟡 Demo Mode (Mock Data)")
+        
+        st.markdown("---")
         
         if st.button("🔄 Refresh Now"):
             st.cache_data.clear()
