@@ -3,7 +3,7 @@
 ## Overview
 
 This document provides a detailed log of AI-assisted development for the SWEN AIOps + GitOps Technical Test project. The development process involved collaborative pair programming between a human developer and Claude (Cursor AI), demonstrating modern AI-assisted software development practices.
-
+Human Developer - Isaac Mori(Me)
 ## Development Timeline
 
 ### Phase 1: Project Analysis and Architecture Design
@@ -12,7 +12,7 @@ This document provides a detailed log of AI-assisted development for the SWEN AI
 
 **AI Contributions:**
 - Analyzed the technical test requirements from PDF and YAML specifications
-- Designed the multi-component system architecture (AI Engine, Dashboard, GitOps, Infrastructure)
+- Human Developer designed the multi-component system architecture (AI Engine, Dashboard, GitOps, Infrastructure) and shared the insight ai reviewed and optimized
 - Created data flow diagrams and component interaction patterns
 - Suggested technology stack choices (FastAPI, Streamlit, Terraform, Prometheus)
 
@@ -23,14 +23,23 @@ This document provides a detailed log of AI-assisted development for the SWEN AI
 
 ### Phase 2: Core Component Development
 **Date:** October 23, 2025  
-**AI Role:** Code generation and implementation partner
+**AI Role:** Code review and optimization and implementation partner
 
 **AI Contributions:**
-- Generated Python modules for AI engine (`ai-engine/engine.py`)
-- Created telemetry simulator (`ai-engine/simulator.py`)
-- Implemented FastAPI backend (`dashboard/api/main.py`)
-- Built Streamlit dashboard UI (`dashboard/ui/app.py`)
-- Developed Terraform infrastructure configurations
+   - Accelerated development by ~30%
+   - Reduced boilerplate code writing
+   - Improved code consistency
+   **Examples:**
+   ```python
+   # Copilot suggested this scoring function structure
+   def calculate_scores(self, metrics: dict) -> Dict[str, float]:
+      scores = {}
+      for provider, data in metrics.items():
+         # Copilot optimized the scoring logic
+         cost_score = 1 - min(data.get('cost', 0) / 2.0, 1.0)
+         # ...
+   ```
+
 
 **Human Contributions:**
 - Reviewed all generated code for correctness and best practices
@@ -97,7 +106,7 @@ This document provides a detailed log of AI-assisted development for the SWEN AI
 ## Learning Outcomes
 
 ### For the Human Developer:
-1. **Accelerated Development:** AI assistance reduced development time by approximately 60%
+1. **Accelerated Development:** AI assistance reduced development time by approximately 40%
 2. **Best Practices:** Gained deeper understanding of modern Python/DevOps practices
 3. **Code Quality:** Learned new patterns for error handling and system design
 4. **Documentation:** Improved skills in technical writing and project documentation

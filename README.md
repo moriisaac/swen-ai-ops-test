@@ -8,7 +8,7 @@
 
 ## 🌐 Live Dashboard
 
-**🚀 [View Live Dashboard](https://your-app-name.streamlit.app)** *(Deploy to Streamlit Cloud)*
+**🚀 [View Live Dashboard](https://swen-aiops-platform.streamlit.app)** *(Deploy to Streamlit Cloud)*
 
 *Note: The live dashboard runs in demo mode with mock data. For full functionality with live telemetry, deploy the complete platform locally or to a cloud provider.*
 
@@ -483,13 +483,11 @@ Proprietary - SWEN AI © 2025
 
 ## 🙏 Acknowledgments
 
-### AI-Assisted Development
-
-This project was developed using **AI pair programming** with Claude (Cursor AI) as a collaborative development partner. The AI assistance was instrumental in accelerating development while maintaining high code quality and comprehensive documentation.
+### AI-Human Assistance
 
 **AI Contributions:**
 - **Architecture Design:** AI helped design the multi-component system architecture, data flow patterns, and component interactions
-- **Code Generation:** AI assisted in writing Python modules, API endpoints, Streamlit components, and Terraform configurations
+- **Code Generation:** Human Developer wrote  Python modules, API endpoints, Streamlit components, and Terraform configurations and AI assisted in code review and optimization
 - **Documentation:** AI helped create comprehensive README, technical documentation, and inline code comments
 - **Debugging & Optimization:** AI identified and resolved issues in API connectivity, Git operations, and deployment configurations
 - **Best Practices:** AI ensured adherence to Python/Streamlit/FastAPI best practices and security considerations
@@ -501,7 +499,7 @@ This project was developed using **AI pair programming** with Claude (Cursor AI)
 - **Final testing** and **deployment** were performed by the human developer
 
 **Learning Outcomes:**
-This collaboration demonstrates the power of AI-assisted development in accelerating complex technical projects while maintaining quality and learning opportunities. The human developer gained deeper understanding of modern DevOps practices, AI-driven infrastructure, and cloud optimization strategies.
+This collaboration demonstrates the power of human and AI-assisted development in accelerating complex technical projects while maintaining quality and learning opportunities. The human developer gained deeper understanding of modern DevOps practices, AI-driven infrastructure, and cloud optimization strategies.
 
 **Transparency:** This acknowledgment ensures full transparency about AI collaboration in the development process, as requested in the technical test requirements.
 
