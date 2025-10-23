@@ -20,3 +20,4 @@ fixMatplotlib = true
 
 [logger]
 level = "error"
+
