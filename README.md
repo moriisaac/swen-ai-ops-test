@@ -446,7 +446,7 @@ See [RUNBOOK.md](docs/RUNBOOK.md) for comprehensive troubleshooting.
 This is a technical test submission. For questions or feedback:
 
 - **Email:** platform@swen.ai
-- **Issues:** https://github.com/swen/swen-aio-test/issues
+- **Issues:** https://github.com/moriisaac/swen-aio-test/issues
 - **Slack:** #swen-aiops
 
 ---
@@ -467,12 +467,11 @@ Built with:
 - [GitLab CI/CD](https://docs.gitlab.com/ee/ci/) - Continuous deployment
 
 AI assistance provided by:
-- GitHub Copilot - Code completion
 - ChatGPT - Architecture and documentation
 - Claude - Code review and optimization
 
 ---
 
-**Built for the SWEN Technical Test - October 2025**
+**Built for SWEN by Mori Isaac - October 2025**
 
 *Demonstrating the future of self-operating infrastructure* 🚀
