@@ -12,7 +12,7 @@ aws_instance_type     = "t3.medium"
 alibaba_instance_type = "t3.medium"
 
 # Service 1 - AI-managed placement
-service1_provider = "aws"
+service1_provider = "alibaba"
 service1_region   = "us-east-1"
 service1_instance = "t3.medium"
 
