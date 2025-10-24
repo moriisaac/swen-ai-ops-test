@@ -38,18 +38,13 @@ policy-check:
   stage: policy-check
   image: python:3.9-slim
   script:
+    - echo "Checking AI recommendation policy..."
     - |
-      echo "Checking AI recommendation policy..."
-      
-      # Check if this is an AI recommendation branch
       if [[ "$CI_COMMIT_BRANCH" =~ ^ai-recommendation/.* ]]; then
         echo "AI recommendation branch detected"
-        
-        # Check for metadata file
         if [ -f "${TF_ROOT}/ai-metadata.json" ]; then
           python3 ops/policy_gate.py
           POLICY_EXIT_CODE=$?
-          
           if [ $POLICY_EXIT_CODE -eq 0 ]; then
             echo "AUTO-APPROVE: Change meets policy criteria"
             echo "AUTO_APPROVE=true" >> policy.env
@@ -81,9 +76,8 @@ plan:
     - terraform init
     - terraform plan -out=tfplan
     - terraform show -json tfplan > plan.json
-    - |
-      echo "=== Terraform Plan Summary ==="
-      terraform show tfplan
+    - echo "=== Terraform Plan Summary ==="
+    - terraform show tfplan
   artifacts:
     paths:
       - ${TF_ROOT}/tfplan
@@ -136,11 +130,9 @@ notify:
   stage: notify
   image: curlimages/curl:latest
   script:
+    - echo "Deployment completed for branch: $CI_COMMIT_BRANCH"
+    - echo "Commit: $CI_COMMIT_SHA"
     - |
-      echo "Deployment completed for branch: $CI_COMMIT_BRANCH"
-      echo "Commit: $CI_COMMIT_SHA"
-      
-      # Send notification to dashboard API (if available)
       if [ -n "$DASHBOARD_WEBHOOK_URL" ]; then
         curl -X POST "$DASHBOARD_WEBHOOK_URL/api/deployments" \
           -H "Content-Type: application/json" \
