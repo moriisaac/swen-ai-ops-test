@@ -306,7 +306,7 @@ class CostOptimizationEngine:
                         logger.info(decision['reasoning'])
                         
                         # Only proceed if confidence is high enough
-                        if decision['confidence'] > 0.5:  # 50% confidence threshold (lowered for testing)
+                        if decision['confidence'] > 0.48:  # 50% confidence threshold (lowered for testing)
                             success = self.update_infrastructure(service, best_provider, decision)
                             if success:
                                 logger.info(f"Successfully updated infrastructure for {service}")

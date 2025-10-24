@@ -730,14 +730,22 @@ def render_live_feed():
         st.subheader("Current System State")
         st.json(health)
     
-    if decisions:
-        recent = decisions.get('decisions', [])[-5:]
-        if recent:
+    if decisions and isinstance(decisions, dict):
+        decisions_list = decisions.get('decisions', [])
+        if isinstance(decisions_list, list) and len(decisions_list) > 0:
+            recent = decisions_list[-5:]
             st.subheader("Recent Activity")
             for decision in reversed(recent):
                 timestamp = format_timestamp(decision.get('timestamp', ''))
                 service = decision.get('service', 'Unknown')
-                st.text(f"[{timestamp}] {service}: {decision.get('explanation', 'No details')}")
+                st.text(f"[{timestamp}] {service}: {decision.get('reasoning', decision.get('explanation', 'No details'))}")
+        else:
+            st.info("No recent decisions available")
+    elif decisions:
+        st.warning("Decisions data format error - showing raw data:")
+        st.text(str(decisions)[:500] + "..." if len(str(decisions)) > 500 else str(decisions))
+    else:
+        st.info("No decisions data available")
 
 def render_health_check():
     """Render health check tab."""
@@ -768,7 +776,11 @@ def render_health_check():
     
     with col4:
         last_commit = health.get('last_ai_commit', 'N/A')
-        st.metric("Last AI Commit", last_commit[:8] if last_commit != 'N/A' else 'N/A')
+        if last_commit and last_commit != 'N/A' and isinstance(last_commit, str):
+            commit_display = last_commit[:8]
+        else:
+            commit_display = 'N/A'
+        st.metric("Last AI Commit", commit_display)
     
     # Detailed health information
     st.subheader("Detailed System Information")

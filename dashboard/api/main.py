@@ -37,8 +37,8 @@ app.add_middleware(
 )
 
 # Data paths
-TELEMETRY_PATH = os.getenv('TELEMETRY_PATH', '../ai-engine/latest_telemetry.json')
-DECISIONS_PATH = os.getenv('DECISIONS_PATH', '../ai-engine/ai_decisions.json')
+TELEMETRY_PATH = os.getenv('TELEMETRY_PATH', '../../ai-engine/latest_telemetry.json')
+DECISIONS_PATH = os.getenv('DECISIONS_PATH', '../../ai-engine/ai_decisions.json')
 TERRAFORM_OUTPUT_PATH = os.getenv('TF_OUTPUT_PATH', '../../infra/envs/prod/outputs.json')
 
 # WebSocket connection manager
