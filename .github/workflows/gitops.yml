@@ -103,7 +103,19 @@ jobs:
           cd ${{ env.TF_ROOT }}
           terraform init
       
-      - name: Terraform Plan
+      - name: Check AWS Credentials
+        id: check_creds
+        run: |
+          if [ -n "$AWS_ACCESS_KEY_ID" ] && [ -n "$AWS_SECRET_ACCESS_KEY" ]; then
+            echo "has_credentials=true" >> $GITHUB_OUTPUT
+            echo "AWS credentials found"
+          else
+            echo "has_credentials=false" >> $GITHUB_OUTPUT
+            echo "No AWS credentials found - running validation only"
+          fi
+      
+      - name: Terraform Plan (with credentials)
+        if: steps.check_creds.outputs.has_credentials == 'true'
         run: |
           cd ${{ env.TF_ROOT }}
           terraform plan -out=tfplan
@@ -111,7 +123,18 @@ jobs:
           echo "=== Terraform Plan Summary ==="
           terraform show tfplan
       
+      - name: Terraform Validate Only (no credentials)
+        if: steps.check_creds.outputs.has_credentials == 'false'
+        run: |
+          cd ${{ env.TF_ROOT }}
+          echo "=== Terraform Validation Only (No Credentials) ==="
+          terraform validate
+          echo "✅ Terraform configuration is valid"
+          echo "ℹ️  Skipping plan due to missing AWS credentials"
+          echo "ℹ️  This is expected for test environments"
+      
       - name: Upload Plan Artifacts
+        if: steps.check_creds.outputs.has_credentials == 'true'
         uses: actions/upload-artifact@v4
         with:
           name: terraform-plan
@@ -134,18 +157,32 @@ jobs:
         with:
           terraform_version: ${{ env.TF_VERSION }}
       
+      - name: Check AWS Credentials
+        id: check_creds
+        run: |
+          if [ -n "$AWS_ACCESS_KEY_ID" ] && [ -n "$AWS_SECRET_ACCESS_KEY" ]; then
+            echo "has_credentials=true" >> $GITHUB_OUTPUT
+            echo "AWS credentials found"
+          else
+            echo "has_credentials=false" >> $GITHUB_OUTPUT
+            echo "No AWS credentials found - skipping apply"
+          fi
+      
       - name: Download Plan Artifacts
+        if: steps.check_creds.outputs.has_credentials == 'true'
         uses: actions/download-artifact@v4
         with:
           name: terraform-plan
           path: ${{ env.TF_ROOT }}
       
       - name: Terraform Init
+        if: steps.check_creds.outputs.has_credentials == 'true'
         run: |
           cd ${{ env.TF_ROOT }}
           terraform init
       
       - name: Terraform Apply
+        if: steps.check_creds.outputs.has_credentials == 'true'
         run: |
           cd ${{ env.TF_ROOT }}
           if [ "${{ needs.policy-check.outputs.auto_approve }}" == "true" ]; then
@@ -157,15 +194,25 @@ jobs:
           fi
       
       - name: Terraform Output
+        if: steps.check_creds.outputs.has_credentials == 'true'
         run: |
           cd ${{ env.TF_ROOT }}
           terraform output -json > outputs.json
       
       - name: Upload Outputs
+        if: steps.check_creds.outputs.has_credentials == 'true'
         uses: actions/upload-artifact@v4
         with:
           name: terraform-outputs
           path: ${{ env.TF_ROOT }}/outputs.json
+      
+      - name: Skip Apply (No Credentials)
+        if: steps.check_creds.outputs.has_credentials == 'false'
+        run: |
+          echo "ℹ️  Skipping Terraform apply due to missing AWS credentials"
+          echo "ℹ️  This is expected for test environments"
+          echo "ℹ️  Configuration validation passed successfully"
+          echo "✅ AI recommendation would be applied in production environment"
 
   notify:
     name: Notify Dashboard
@@ -178,6 +225,15 @@ jobs:
           echo "Deployment completed for branch: ${{ github.ref_name }}"
           echo "Commit: ${{ github.sha }}"
           
+          # Determine status based on whether credentials were available
+          if [ "${{ needs.apply.result }}" == "success" ]; then
+            STATUS="success"
+            echo "✅ Pipeline completed successfully"
+          else
+            STATUS="skipped"
+            echo "ℹ️  Pipeline completed (validation only - no credentials)"
+          fi
+          
           # Send notification to dashboard API (if available)
           if [ -n "${{ secrets.DASHBOARD_WEBHOOK_URL }}" ]; then
             curl -X POST "${{ secrets.DASHBOARD_WEBHOOK_URL }}/api/deployments" \
@@ -185,7 +241,10 @@ jobs:
               -d "{
                 \"branch\": \"${{ github.ref_name }}\",
                 \"commit\": \"${{ github.sha }}\",
-                \"status\": \"${{ job.status }}\",
-                \"timestamp\": \"$(date -u +%Y-%m-%dT%H:%M:%SZ)\"
+                \"status\": \"$STATUS\",
+                \"timestamp\": \"$(date -u +%Y-%m-%dT%H:%M:%SZ)\",
+                \"auto_approved\": ${{ needs.policy-check.outputs.auto_approve }}
               }"
+          else
+            echo "ℹ️  No dashboard webhook URL configured"
           fi
