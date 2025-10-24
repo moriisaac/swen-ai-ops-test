@@ -2,7 +2,8 @@ import json
 import os
 import time
 import logging
-from datetime import datetime
+import subprocess
+from datetime import datetime, timezone
 from typing import Dict, Tuple, List, Optional
 import numpy as np
 from git import Repo, GitCommandError
@@ -36,6 +37,9 @@ class CostOptimizationEngine:
         # Initialize decision history
         self.decision_history: List[dict] = []
         self._load_decision_history()
+        
+        # Initialize branch manager
+        self.branch_manager = self._init_branch_manager()
     
     def _init_git_repo(self):
         """Initialize git repository handler."""
@@ -44,6 +48,19 @@ class CostOptimizationEngine:
         except Exception as e:
             logger.error(f"Failed to initialize git repository: {e}")
             raise
+    
+    def _init_branch_manager(self):
+        """Initialize branch manager for strict branch control."""
+        try:
+            # Import the branch manager
+            import sys
+            sys.path.append(os.path.join(self.repo_path, 'ops'))
+            from ai_branch_manager import AIBranchManager
+            
+            return AIBranchManager(repo_path=self.repo_path, max_branches=5, alert_hours=24)
+        except Exception as e:
+            logger.error(f"Failed to initialize branch manager: {e}")
+            return None
     
     def _load_decision_history(self):
         """Load previous decisions from log file."""
@@ -147,47 +164,20 @@ class CostOptimizationEngine:
         return best_provider, decision
     
     def update_infrastructure(self, service: str, provider: str, decision: dict) -> bool:
-        """Update infrastructure configuration via GitOps."""
+        """Update infrastructure configuration via GitOps with STRICT branch management."""
         try:
-            # Create a new branch
-            branch_name = f"ai-recommendation/{service}-{int(time.time())}"
+            # EMERGENCY: Completely disable branch creation until cleanup is complete
+            logger.warning(f"🚨 BRANCH CREATION DISABLED: Skipping infrastructure update for {service}")
+            logger.warning(f"Reason: Emergency branch cleanup in progress. Current branch count exceeds safe limits.")
             
-            # Update Terraform variables
-            with open(self.terraform_vars_path, 'r') as f:
-                content = f.read()
-            
-            # Update the provider for the service
-            pattern = f'{service}_provider = "[a-z]+"'
-            import re
-            new_content = re.sub(
-                pattern, 
-                f'{service}_provider = "{provider}"',
-                content
-            )
-            
-            # Write changes
-            with open(self.terraform_vars_path, 'w') as f:
-                f.write(new_content)
-            
-            # Commit changes
-            self.git_repo.git.checkout('HEAD', b=branch_name)
-            self.git_repo.index.add([self.terraform_vars_path])
-            self.git_repo.index.commit(f"AI Recommendation: Move {service} to {provider}")
-            
-            # Push to remote
-            origin = self.git_repo.remote(name='origin')
-            origin.push(branch_name)
-            
-            # Log the decision
-            decision['git_branch'] = branch_name
-            decision['commit_sha'] = self.git_repo.head.commit.hexsha
+            # Log the decision without creating a branch
+            decision['git_branch'] = 'BRANCH_CREATION_DISABLED'
+            decision['commit_sha'] = 'N/A'
+            decision['status'] = 'skipped_due_to_cleanup'
             self._save_decision(decision)
             
-            return True
+            return False  # Always return False to prevent any branch creation
             
-        except GitCommandError as e:
-            logger.error(f"Git command failed: {e}")
-            return False
         except Exception as e:
             logger.error(f"Failed to update infrastructure: {e}")
             return False
