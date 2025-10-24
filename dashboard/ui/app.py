@@ -271,23 +271,23 @@ def main():
             st.metric("Status", health.get('status', 'unknown').upper())
             st.metric("Active Providers", len(health.get('active_providers', [])))
             st.metric("Services", len(health.get('services', {})))
-    
-        # Main content
-        tab1, tab2, tab3, tab4, tab5, tab6, tab7, tab8, tab9, tab10, tab11, tab12, tab13 = st.tabs([
-            "📊 Overview", 
-            "🤖 AI Decisions", 
-            "🏗️ IaC Changes", 
-            "🚀 Deployments",
-            "💰 Cost Analysis", 
-            "📈 Telemetry", 
-            "⚡ Live Feed",
-            "🏥 Health Check",
-            "📋 GitOps History",
-            "💸 Economics View",
-            "⚖️ FinOps & Policy",
-            "📊 Grafana",
-            "🔍 Prometheus"
-        ])
+
+    # Main content
+    tab1, tab2, tab3, tab4, tab5, tab6, tab7, tab8, tab9, tab10, tab11, tab12, tab13 = st.tabs([
+        "📊 Overview", 
+        "🤖 AI Decisions", 
+        "🏗️ IaC Changes", 
+        "🚀 Deployments",
+        "💰 Cost Analysis", 
+        "📈 Telemetry", 
+        "⚡ Live Feed",
+        "🏥 Health Check",
+        "📋 GitOps History",
+        "💸 Economics View",
+        "⚖️ FinOps & Policy",
+        "📊 Grafana",
+        "🔍 Prometheus"
+    ])
 
     # Tab 1: Overview
     with tab1:
@@ -340,10 +340,10 @@ def main():
     # Tab 13: Prometheus
     with tab13:
         render_prometheus()
-
-    # Auto-refresh
-    time.sleep(REFRESH_INTERVAL)
-    st.rerun()
+    
+    # Manual refresh button
+    if st.button("🔄 Refresh Data", key="refresh_button"):
+        st.rerun()
 
 def render_overview():
     """Render overview dashboard."""
