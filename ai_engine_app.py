@@ -76,7 +76,7 @@ def generate_telemetry():
     }
 
 def generate_ai_decision():
-    """Generate mock AI decision"""
+    """Generate mock AI decision with policy evaluation"""
     services = ["service1", "service2", "service3"]
     providers = ["aws", "alibaba"]
     
@@ -91,6 +91,27 @@ def generate_ai_decision():
         f"Credit utilization: {to_provider.upper()} has better credit balance"
     ]
     
+    confidence = round(random.uniform(0.75, 0.95), 2)
+    predicted_savings = round(random.uniform(0.05, 0.15), 2)
+    cost_delta_percent = round(random.uniform(2, 8), 1)
+    
+    # Policy evaluation
+    if confidence >= 0.85 and predicted_savings >= 0.05 and cost_delta_percent <= 5:
+        policy_status = "auto_approved"
+        policy_reasoning = f"Auto-approved: All policy criteria met (confidence: {confidence:.1%}, savings: ${predicted_savings:.2f}/month)"
+        policy_violations = []
+    else:
+        policy_status = "escalated"
+        violations = []
+        if confidence < 0.85:
+            violations.append(f"Confidence {confidence:.1%} below 85% threshold")
+        if predicted_savings < 0.05:
+            violations.append(f"Predicted savings ${predicted_savings:.2f} below $0.05 threshold")
+        if cost_delta_percent > 5:
+            violations.append(f"Cost delta {cost_delta_percent:.1f}% exceeds 5% threshold")
+        policy_reasoning = f"Escalated for manual review: {len(violations)} policy violations"
+        policy_violations = violations
+    
     return {
         "timestamp": datetime.now().isoformat() + "Z",
         "service": service,
@@ -98,10 +119,16 @@ def generate_ai_decision():
         "from_provider": from_provider,
         "to_provider": to_provider,
         "reason": random.choice(reasons),
-        "confidence": round(random.uniform(0.75, 0.95), 2),
-        "estimated_savings": round(random.uniform(0.05, 0.15), 2),
+        "confidence": confidence,
+        "estimated_savings": predicted_savings,
         "git_branch": f"ai-recommendation/{service}-{int(datetime.now().timestamp())}",
-        "commit_sha": f"{random.randint(100000, 999999):06x}"
+        "commit_sha": f"{random.randint(100000, 999999):06x}",
+        "policy_status": policy_status,
+        "policy_reasoning": policy_reasoning,
+        "policy_violations": policy_violations,
+        "cost_delta_percent": cost_delta_percent,
+        "budget_impact": round(random.uniform(-0.1, 0.1), 2),
+        "credit_utilization": round(random.uniform(0, 0.05), 2)
     }
 
 # Initialize session state
@@ -163,6 +190,29 @@ if st.session_state.engine_running:
             st.write(f"**Confidence:** {decision['confidence']:.2f}")
             st.write(f"**Estimated Savings:** ${decision['estimated_savings']:.2f}/hr")
             st.write(f"**Git Branch:** {decision['git_branch']}")
+            
+            # Policy information
+            st.markdown("---")
+            st.markdown("**Policy Evaluation:**")
+            policy_status = decision.get('policy_status', 'pending')
+            if policy_status == 'auto_approved':
+                st.success(f"✅ {policy_status.replace('_', ' ').title()}")
+            elif policy_status == 'escalated':
+                st.warning(f"⚠️ {policy_status.replace('_', ' ').title()}")
+            else:
+                st.info(f"⏳ {policy_status.replace('_', ' ').title()}")
+            
+            st.write(f"**Policy Reasoning:** {decision.get('policy_reasoning', 'No reasoning')}")
+            
+            violations = decision.get('policy_violations', [])
+            if violations:
+                st.write("**Policy Violations:**")
+                for violation in violations:
+                    st.write(f"- {violation}")
+            
+            st.write(f"**Cost Delta:** {decision.get('cost_delta_percent', 0):.1f}%")
+            st.write(f"**Budget Impact:** ${decision.get('budget_impact', 0):.2f}")
+            st.write(f"**Credit Utilization:** ${decision.get('credit_utilization', 0):.2f}")
 
 # Live telemetry display
 st.subheader("📊 Live Telemetry Data")
@@ -193,8 +243,75 @@ if st.session_state.decisions_history:
             st.write(f"**To:** {decision.get('to_provider', 'Unknown')}")
             st.write(f"**Reason:** {decision.get('reason', 'No reason provided')}")
             st.write(f"**Confidence:** {decision.get('confidence', 0):.2f}")
+            
+            # Policy status
+            policy_status = decision.get('policy_status', 'pending')
+            if policy_status == 'auto_approved':
+                st.success(f"✅ Policy: {policy_status.replace('_', ' ').title()}")
+            elif policy_status == 'escalated':
+                st.warning(f"⚠️ Policy: {policy_status.replace('_', ' ').title()}")
+            else:
+                st.info(f"⏳ Policy: {policy_status.replace('_', ' ').title()}")
 else:
     st.info("No AI decisions yet. Start the AI Engine and make decisions!")
+
+# FinOps & Policy Intelligence
+st.subheader("⚖️ FinOps & Policy Intelligence")
+
+col1, col2 = st.columns(2)
+
+with col1:
+    st.markdown("### 💰 Budget Management")
+    st.metric("Monthly Budget", "$10,000")
+    st.metric("Current Spend", "$2,500")
+    st.metric("Budget Utilization", "25.0%")
+    st.metric("Credits Available", "$2,000")
+    st.success("✅ Budget within normal limits")
+
+with col2:
+    st.markdown("### 📋 Policy Statistics")
+    total_decisions = len(st.session_state.decisions_history)
+    auto_approved = len([d for d in st.session_state.decisions_history if d.get('policy_status') == 'auto_approved'])
+    escalated = len([d for d in st.session_state.decisions_history if d.get('policy_status') == 'escalated'])
+    
+    st.metric("Total Decisions", total_decisions)
+    st.metric("Auto-Approved", auto_approved)
+    st.metric("Escalated", escalated)
+    st.metric("Pending", 0)
+
+# Policy Configuration
+st.subheader("⚙️ Policy Configuration")
+
+with st.expander("View Policy Rules"):
+    st.markdown("""
+    **Auto-Approval Criteria:**
+    - Cost delta ≤ 5% of current cost
+    - AI confidence ≥ 85%
+    - Predicted monthly savings ≥ $0.05
+    - Service tier is not critical (Tier 1)
+    - Budget impact ≤ 10% of monthly budget
+    - Sufficient credits available
+    
+    **Manual Approval Required:**
+    - High-impact changes (>5% cost delta)
+    - Critical services (Tier 1)
+    - Low confidence decisions (<85%)
+    - Budget impact >10% of monthly budget
+    - Insufficient credits
+    """)
+
+# Regional Discounts
+st.subheader("🌍 Regional Discounts")
+
+discount_data = {
+    "us-east-1": "5.0%",
+    "us-west-2": "3.0%", 
+    "eu-west-1": "4.0%",
+    "ap-southeast-1": "6.0%"
+}
+
+for region, discount in discount_data.items():
+    st.write(f"**{region}:** {discount}")
 
 # Auto-refresh
 if st.session_state.engine_running:

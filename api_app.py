@@ -264,10 +264,35 @@ if st.button("Test AI Decisions"):
     st.success("✅ AI decisions endpoint working!")
     st.json(decisions_data)
 
+if st.button("Test Policy Visibility"):
+    policy_data = get_mock_policy_visibility()
+    st.success("✅ Policy visibility endpoint working!")
+    st.json(policy_data)
+
+if st.button("Test GitOps History"):
+    gitops_data = get_mock_gitops_history()
+    st.success("✅ GitOps history endpoint working!")
+    st.json(gitops_data)
+
+if st.button("Test Economics View"):
+    economics_data = get_mock_economics_view()
+    st.success("✅ Economics view endpoint working!")
+    st.json(economics_data)
+
+if st.button("Test Budget Status"):
+    budget_data = get_mock_budget_status()
+    st.success("✅ Budget status endpoint working!")
+    st.json(budget_data)
+
+if st.button("Test Policy Stats"):
+    policy_stats_data = get_mock_policy_stats()
+    st.success("✅ Policy stats endpoint working!")
+    st.json(policy_stats_data)
+
 # Live data display
 st.subheader("📊 Live Data Preview")
 
-tab1, tab2, tab3 = st.tabs(["Telemetry", "Decisions", "Health"])
+tab1, tab2, tab3, tab4, tab5, tab6, tab7 = st.tabs(["Telemetry", "Decisions", "Health", "Policy", "GitOps", "Economics", "Budget"])
 
 with tab1:
     st.json(get_mock_telemetry())
@@ -277,6 +302,18 @@ with tab2:
 
 with tab3:
     st.json(get_mock_health())
+
+with tab4:
+    st.json(get_mock_policy_visibility())
+
+with tab5:
+    st.json(get_mock_gitops_history())
+
+with tab6:
+    st.json(get_mock_economics_view())
+
+with tab7:
+    st.json(get_mock_budget_status())
 
 # Keep the app running
 st.markdown("---")
