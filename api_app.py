@@ -411,44 +411,94 @@ with col2:
 st.subheader("🧪 Test Endpoints")
 
 if st.button("Test Health Check"):
-    health_data = get_mock_health()
-    st.success("✅ Health check passed!")
-    st.json(health_data)
+    try:
+        response = requests.get("http://localhost:8000/healthz", timeout=5)
+        if response.status_code == 200:
+            st.success("✅ Health check passed!")
+            st.json(response.json())
+        else:
+            st.error(f"❌ Health check failed: {response.status_code}")
+    except Exception as e:
+        st.error(f"❌ Connection failed: {e}")
 
 if st.button("Test Telemetry"):
-    telemetry_data = get_mock_telemetry()
-    st.success("✅ Telemetry endpoint working!")
-    st.json(telemetry_data)
+    try:
+        response = requests.get("http://localhost:8000/api/telemetry", timeout=5)
+        if response.status_code == 200:
+            st.success("✅ Telemetry endpoint working!")
+            st.json(response.json())
+        else:
+            st.error(f"❌ Telemetry failed: {response.status_code}")
+    except Exception as e:
+        st.error(f"❌ Connection failed: {e}")
 
 if st.button("Test AI Decisions"):
-    decisions_data = get_mock_decisions()
-    st.success("✅ AI decisions endpoint working!")
-    st.json(decisions_data)
+    try:
+        response = requests.get("http://localhost:8000/api/decisions", timeout=5)
+        if response.status_code == 200:
+            st.success("✅ AI decisions endpoint working!")
+            data = response.json()
+            st.json(data)
+            st.info(f"Total decisions: {data.get('total', 0)}")
+        else:
+            st.error(f"❌ Decisions failed: {response.status_code}")
+    except Exception as e:
+        st.error(f"❌ Connection failed: {e}")
 
 if st.button("Test Policy Visibility"):
-    policy_data = get_mock_policy_visibility()
-    st.success("✅ Policy visibility endpoint working!")
-    st.json(policy_data)
+    try:
+        response = requests.get("http://localhost:8000/api/policy-visibility", timeout=5)
+        if response.status_code == 200:
+            st.success("✅ Policy visibility endpoint working!")
+            st.json(response.json())
+        else:
+            st.error(f"❌ Policy visibility failed: {response.status_code}")
+    except Exception as e:
+        st.error(f"❌ Connection failed: {e}")
 
 if st.button("Test GitOps History"):
-    gitops_data = get_mock_gitops_history()
-    st.success("✅ GitOps history endpoint working!")
-    st.json(gitops_data)
+    try:
+        response = requests.get("http://localhost:8000/api/gitops-history", timeout=5)
+        if response.status_code == 200:
+            st.success("✅ GitOps history endpoint working!")
+            st.json(response.json())
+        else:
+            st.error(f"❌ GitOps history failed: {response.status_code}")
+    except Exception as e:
+        st.error(f"❌ Connection failed: {e}")
 
 if st.button("Test Economics View"):
-    economics_data = get_mock_economics_view()
-    st.success("✅ Economics view endpoint working!")
-    st.json(economics_data)
+    try:
+        response = requests.get("http://localhost:8000/api/economics-view", timeout=5)
+        if response.status_code == 200:
+            st.success("✅ Economics view endpoint working!")
+            st.json(response.json())
+        else:
+            st.error(f"❌ Economics view failed: {response.status_code}")
+    except Exception as e:
+        st.error(f"❌ Connection failed: {e}")
 
 if st.button("Test Budget Status"):
-    budget_data = get_mock_budget_status()
-    st.success("✅ Budget status endpoint working!")
-    st.json(budget_data)
+    try:
+        response = requests.get("http://localhost:8000/api/budget-status", timeout=5)
+        if response.status_code == 200:
+            st.success("✅ Budget status endpoint working!")
+            st.json(response.json())
+        else:
+            st.error(f"❌ Budget status failed: {response.status_code}")
+    except Exception as e:
+        st.error(f"❌ Connection failed: {e}")
 
 if st.button("Test Policy Stats"):
-    policy_stats_data = get_mock_policy_stats()
-    st.success("✅ Policy stats endpoint working!")
-    st.json(policy_stats_data)
+    try:
+        response = requests.get("http://localhost:8000/api/policy-stats", timeout=5)
+        if response.status_code == 200:
+            st.success("✅ Policy stats endpoint working!")
+            st.json(response.json())
+        else:
+            st.error(f"❌ Policy stats failed: {response.status_code}")
+    except Exception as e:
+        st.error(f"❌ Connection failed: {e}")
 
 # Live data display
 st.subheader("📊 Live Data Preview")
@@ -460,32 +510,81 @@ tab1, tab2, tab3, tab4, tab5, tab6, tab7 = st.tabs(["Telemetry", "Decisions", "H
 
 with tab1:
     st.markdown("**GET /api/telemetry**")
-    st.json(get_mock_telemetry())
+    try:
+        response = requests.get("http://localhost:8000/api/telemetry", timeout=5)
+        if response.status_code == 200:
+            st.json(response.json())
+        else:
+            st.error(f"Failed to fetch: {response.status_code}")
+    except Exception as e:
+        st.error(f"Connection failed: {e}")
 
 with tab2:
     st.markdown("**GET /api/decisions**")
-    st.json(get_mock_decisions())
+    try:
+        response = requests.get("http://localhost:8000/api/decisions", timeout=5)
+        if response.status_code == 200:
+            st.json(response.json())
+        else:
+            st.error(f"Failed to fetch: {response.status_code}")
+    except Exception as e:
+        st.error(f"Connection failed: {e}")
 
 with tab3:
     st.markdown("**GET /healthz**")
-    st.json(get_mock_health())
+    try:
+        response = requests.get("http://localhost:8000/healthz", timeout=5)
+        if response.status_code == 200:
+            st.json(response.json())
+        else:
+            st.error(f"Failed to fetch: {response.status_code}")
+    except Exception as e:
+        st.error(f"Connection failed: {e}")
 
 with tab4:
     st.markdown("**GET /api/policy-visibility**")
-    st.json(get_mock_policy_visibility())
+    try:
+        response = requests.get("http://localhost:8000/api/policy-visibility", timeout=5)
+        if response.status_code == 200:
+            st.json(response.json())
+        else:
+            st.error(f"Failed to fetch: {response.status_code}")
+    except Exception as e:
+        st.error(f"Connection failed: {e}")
 
 with tab5:
     st.markdown("**GET /api/gitops-history**")
-    st.json(get_mock_gitops_history())
+    try:
+        response = requests.get("http://localhost:8000/api/gitops-history", timeout=5)
+        if response.status_code == 200:
+            st.json(response.json())
+        else:
+            st.error(f"Failed to fetch: {response.status_code}")
+    except Exception as e:
+        st.error(f"Connection failed: {e}")
 
 with tab6:
     st.markdown("**GET /api/economics-view**")
-    st.json(get_mock_economics_view())
+    try:
+        response = requests.get("http://localhost:8000/api/economics-view", timeout=5)
+        if response.status_code == 200:
+            st.json(response.json())
+        else:
+            st.error(f"Failed to fetch: {response.status_code}")
+    except Exception as e:
+        st.error(f"Connection failed: {e}")
 
 with tab7:
     st.markdown("**GET /api/budget-status**")
-    st.json(get_mock_budget_status())
+    try:
+        response = requests.get("http://localhost:8000/api/budget-status", timeout=5)
+        if response.status_code == 200:
+            st.json(response.json())
+        else:
+            st.error(f"Failed to fetch: {response.status_code}")
+    except Exception as e:
+        st.error(f"Connection failed: {e}")
 
 # Keep the app running
 st.markdown("---")
-st.markdown("**Note:** This app simulates the API backend service. The dashboard can connect to this URL for live data.")
+st.markdown("**Note:** This app runs a FastAPI server on port 8000 with dynamic mock data. The dashboard can connect to this URL for live data.")
