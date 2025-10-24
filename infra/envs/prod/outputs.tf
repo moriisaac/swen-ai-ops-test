@@ -24,12 +24,12 @@ output "alibaba_vpc_id" {
 # Service outputs
 output "service1_instance_id" {
   description = "Service 1 instance ID"
-  value       = module.service1.instance_id
+  value       = var.service1_provider == "aws" ? module.service1_aws[0].instance_id : module.service1_alibaba[0].instance_id
 }
 
 output "service1_public_ip" {
   description = "Service 1 public IP"
-  value       = module.service1.public_ip
+  value       = var.service1_provider == "aws" ? module.service1_aws[0].public_ip : module.service1_alibaba[0].public_ip
 }
 
 output "service1_provider" {
@@ -39,12 +39,12 @@ output "service1_provider" {
 
 output "service2_instance_id" {
   description = "Service 2 instance ID"
-  value       = module.service2.instance_id
+  value       = var.service2_provider == "aws" ? module.service2_aws[0].instance_id : module.service2_alibaba[0].instance_id
 }
 
 output "service2_public_ip" {
   description = "Service 2 public IP"
-  value       = module.service2.public_ip
+  value       = var.service2_provider == "aws" ? module.service2_aws[0].public_ip : module.service2_alibaba[0].public_ip
 }
 
 output "service2_provider" {
@@ -54,12 +54,12 @@ output "service2_provider" {
 
 output "service3_instance_id" {
   description = "Service 3 instance ID"
-  value       = module.service3.instance_id
+  value       = var.service3_provider == "aws" ? module.service3_aws[0].instance_id : module.service3_alibaba[0].instance_id
 }
 
 output "service3_public_ip" {
   description = "Service 3 public IP"
-  value       = module.service3.public_ip
+  value       = var.service3_provider == "aws" ? module.service3_aws[0].public_ip : module.service3_alibaba[0].public_ip
 }
 
 output "service3_provider" {
@@ -83,16 +83,16 @@ output "deployment_summary" {
     }
     services = {
       service1 = {
-        provider   = var.service1_provider
-        public_ip  = module.service1.public_ip
+        provider  = var.service1_provider
+        public_ip = var.service1_provider == "aws" ? module.service1_aws[0].public_ip : module.service1_alibaba[0].public_ip
       }
       service2 = {
-        provider   = var.service2_provider
-        public_ip  = module.service2.public_ip
+        provider  = var.service2_provider
+        public_ip = var.service2_provider == "aws" ? module.service2_aws[0].public_ip : module.service2_alibaba[0].public_ip
       }
       service3 = {
-        provider   = var.service3_provider
-        public_ip  = module.service3.public_ip
+        provider  = var.service3_provider
+        public_ip = var.service3_provider == "aws" ? module.service3_aws[0].public_ip : module.service3_alibaba[0].public_ip
       }
     }
   }

@@ -309,36 +309,36 @@ def main():
     with tab5:
         render_cost_analysis()
 
-    # Tab 5: Telemetry
-    with tab5:
+    # Tab 6: Telemetry
+    with tab6:
         render_telemetry()
 
-    # Tab 6: Live Feed
-    with tab6:
+    # Tab 7: Live Feed
+    with tab7:
         render_live_feed()
 
-    # Tab 7: Health Check
-    with tab7:
+    # Tab 8: Health Check
+    with tab8:
         render_health_check()
 
-    # Tab 8: GitOps History
-    with tab8:
+    # Tab 9: GitOps History
+    with tab9:
         render_gitops_history()
 
-    # Tab 9: Economics View
-    with tab9:
+    # Tab 10: Economics View
+    with tab10:
         render_economics_view()
 
-    # Tab 10: FinOps & Policy
-    with tab10:
+    # Tab 11: FinOps & Policy
+    with tab11:
         render_finops_policy()
 
-    # Tab 11: Grafana
-    with tab11:
+    # Tab 12: Grafana
+    with tab12:
         render_grafana()
 
-    # Tab 12: Prometheus
-    with tab12:
+    # Tab 13: Prometheus
+    with tab13:
         render_prometheus()
 
     # Auto-refresh
@@ -1680,6 +1680,112 @@ def render_iac_changes():
             
             # Timestamp
             st.caption(f"**Timestamp:** {change.get('timestamp', 'N/A')}")
+
+def render_deployments():
+    """Render deployment history and status."""
+    st.header("🚀 Deployment History")
+    
+    # Fetch deployments data
+    deployments_data = fetch_data("/api/deployments")
+    
+    if not deployments_data:
+        st.error("❌ Failed to fetch deployments data")
+        return
+    
+    deployments = deployments_data.get('deployments', [])
+    total_deployments = deployments_data.get('total_deployments', 0)
+    
+    # Summary metrics
+    col1, col2, col3, col4 = st.columns(4)
+    
+    with col1:
+        st.metric("Total Deployments", total_deployments)
+    
+    with col2:
+        auto_approved = len([d for d in deployments if d.get('auto_approved', False)])
+        st.metric("Auto-Approved", auto_approved)
+    
+    with col3:
+        manual_deployments = total_deployments - auto_approved
+        st.metric("Manual Deployments", manual_deployments)
+    
+    with col4:
+        success_rate = len([d for d in deployments if d.get('status') == 'success']) / max(total_deployments, 1) * 100
+        st.metric("Success Rate", f"{success_rate:.1f}%")
+    
+    # Deployment History
+    st.subheader("📋 Recent Deployments")
+    
+    if not deployments:
+        st.info("No deployments found")
+        return
+    
+    # Show last 20 deployments
+    for deployment in deployments[-20:]:
+        with st.expander(f"🚀 {deployment.get('branch', 'unknown')} - {deployment.get('timestamp', 'unknown')}", expanded=False):
+            col1, col2 = st.columns(2)
+            
+            with col1:
+                st.markdown(f"**Branch:** `{deployment.get('branch', 'N/A')}`")
+                st.markdown(f"**Commit:** `{deployment.get('commit', 'N/A')}`")
+                st.markdown(f"**Status:** {deployment.get('status', 'N/A').title()}")
+                
+                # Auto-approval status
+                if deployment.get('auto_approved', False):
+                    st.success("✅ Auto-Approved")
+                else:
+                    st.info("👤 Manual Approval")
+            
+            with col2:
+                st.markdown(f"**Timestamp:** {deployment.get('timestamp', 'N/A')}")
+                
+                # Status indicator
+                status = deployment.get('status', 'unknown')
+                if status == 'success':
+                    st.success("✅ Success")
+                elif status == 'failed':
+                    st.error("❌ Failed")
+                elif status == 'pending':
+                    st.warning("⏳ Pending")
+                else:
+                    st.info(f"📋 {status.title()}")
+    
+    # GitOps Pipeline Status
+    st.subheader("🔄 GitOps Pipeline Status")
+    
+    col1, col2 = st.columns(2)
+    
+    with col1:
+        st.markdown("**Pipeline Stages:**")
+        st.markdown("1. ✅ Terraform Validation")
+        st.markdown("2. ✅ Policy Evaluation")
+        st.markdown("3. ✅ Terraform Plan")
+        st.markdown("4. ✅ Terraform Apply")
+        st.markdown("5. ✅ Dashboard Notification")
+    
+    with col2:
+        st.markdown("**Current Status:**")
+        st.success("🟢 Pipeline Active")
+        st.info("📊 Monitoring Deployments")
+        st.warning("⚖️ Policy Gates Enabled")
+        st.info("🔄 Auto-Approval for Low Risk")
+    
+    # Quick Actions
+    st.subheader("⚡ Quick Actions")
+    
+    col1, col2, col3 = st.columns(3)
+    
+    with col1:
+        if st.button("🔄 Refresh Deployments", use_container_width=True):
+            st.rerun()
+    
+    with col2:
+        if st.button("📊 View Pipeline Logs", use_container_width=True):
+            st.info("Pipeline logs would be displayed here")
+    
+    with col3:
+        if st.button("🚀 Trigger Deployment", use_container_width=True):
+            st.info("Manual deployment trigger would be available here")
 
 if __name__ == "__main__":
     main()

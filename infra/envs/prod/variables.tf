@@ -43,7 +43,7 @@ variable "service1_provider" {
   description = "Cloud provider for service1 (aws or alibaba)"
   type        = string
   default     = "aws"
-  
+
   validation {
     condition     = contains(["aws", "alibaba"], var.service1_provider)
     error_message = "Provider must be either 'aws' or 'alibaba'."
@@ -67,7 +67,7 @@ variable "service2_provider" {
   description = "Cloud provider for service2 (aws or alibaba)"
   type        = string
   default     = "aws"
-  
+
   validation {
     condition     = contains(["aws", "alibaba"], var.service2_provider)
     error_message = "Provider must be either 'aws' or 'alibaba'."
@@ -91,7 +91,7 @@ variable "service3_provider" {
   description = "Cloud provider for service3 (aws or alibaba)"
   type        = string
   default     = "alibaba"
-  
+
   validation {
     condition     = contains(["aws", "alibaba"], var.service3_provider)
     error_message = "Provider must be either 'aws' or 'alibaba'."

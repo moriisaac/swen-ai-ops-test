@@ -2,12 +2,12 @@
 # This file is managed by the AI engine for GitOps automation
 
 # Provider regions
-aws_region      = "us-east-1"
-alibaba_region  = "ap-southeast-1"
+aws_region     = "us-east-1"
+alibaba_region = "ap-southeast-1"
 
 # Cluster configurations
-aws_node_count      = 2
-alibaba_node_count  = 2
+aws_node_count        = 2
+alibaba_node_count    = 2
 aws_instance_type     = "t3.medium"
 alibaba_instance_type = "t3.medium"
 
