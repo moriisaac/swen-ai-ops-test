@@ -65,7 +65,7 @@ AI_ENGINE_URL = st.sidebar.text_input("AI Engine URL", os.getenv("AI_ENGINE_URL"
 REFRESH_INTERVAL = st.sidebar.slider("Refresh Interval (seconds)", 5, 60, 10)
 
 # Helper functions
-@st.cache_data(ttl=5)
+@st.cache_data(ttl=1)
 def fetch_data(endpoint: str):
     """Fetch data from API with caching."""
     try:
@@ -200,7 +200,35 @@ def get_mock_data(endpoint: str):
             "services": {"service1": "aws", "service2": "alibaba", "service3": "aws"},
             "timestamp": "2025-10-23T13:46:56Z"
         }
-    return None
+    elif endpoint == "/api/deployments":
+        return {
+            "deployments": [
+                {
+                    "timestamp": "2025-10-24T07:00:00Z",
+                    "branch": "ai-recommendation/service3-1761289639",
+                    "commit": "0b7341f",
+                    "status": "success",
+                    "auto_approved": True
+                },
+                {
+                    "timestamp": "2025-10-24T06:45:00Z",
+                    "branch": "ai-recommendation/service1-1761282460",
+                    "commit": "72cdc2a",
+                    "status": "success",
+                    "auto_approved": False
+                },
+                {
+                    "timestamp": "2025-10-24T06:30:00Z",
+                    "branch": "ai-recommendation/service2-1761282385",
+                    "commit": "a1b2c3d",
+                    "status": "success",
+                    "auto_approved": True
+                }
+            ],
+            "total_deployments": 3,
+            "timestamp": "2025-10-24T07:10:00Z"
+        }
+        return None
 
 def format_timestamp(ts: str) -> str:
     """Format ISO timestamp to readable format."""
@@ -271,7 +299,7 @@ def main():
             st.metric("Status", health.get('status', 'unknown').upper())
             st.metric("Active Providers", len(health.get('active_providers', [])))
             st.metric("Services", len(health.get('services', {})))
-
+    
     # Main content
     tab1, tab2, tab3, tab4, tab5, tab6, tab7, tab8, tab9, tab10, tab11, tab12, tab13 = st.tabs([
         "📊 Overview", 
@@ -288,15 +316,15 @@ def main():
         "📊 Grafana",
         "🔍 Prometheus"
     ])
-
+    
     # Tab 1: Overview
     with tab1:
         render_overview()
-
+    
     # Tab 2: AI Decisions
     with tab2:
         render_ai_decisions()
-
+    
     # Tab 3: IaC Changes
     with tab3:
         render_iac_changes()
@@ -316,7 +344,7 @@ def main():
     # Tab 7: Live Feed
     with tab7:
         render_live_feed()
-
+    
     # Tab 8: Health Check
     with tab8:
         render_health_check()

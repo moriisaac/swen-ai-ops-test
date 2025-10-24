@@ -666,7 +666,7 @@ async def get_iac_changes():
             "timestamp": get_current_timestamp()
         }
 
-@app.post("/api/deployments")
+@app.post("/api/deployment-events")
 async def receive_deployment_event(event: DeploymentEvent):
     """Receive deployment events from CI/CD pipeline."""
     logger.info(f"Deployment event received: {event.branch} - {event.status}")
