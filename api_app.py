@@ -326,6 +326,110 @@ async def get_policy_stats():
         "timestamp": datetime.now().isoformat() + "Z"
     }
 
+@app.get("/api/iac-changes")
+async def get_iac_changes():
+    """Get Infrastructure as Code changes made by AI."""
+    iac_changes = []
+    
+    # Generate realistic IaC changes based on AI decisions
+    for i in range(st.session_state.api_data['decisions_count']):
+        services = ["service1", "service2", "service3"]
+        providers = ["aws", "alibaba"]
+        
+        service = random.choice(services)
+        from_provider = random.choice(providers)
+        to_provider = random.choice([p for p in providers if p != from_provider])
+        
+        # Generate realistic Terraform changes
+        terraform_changes = {
+            "files_modified": [
+                f"infra/envs/prod/{service}.tf",
+                "infra/envs/prod/terraform.tfvars",
+                f"infra/envs/prod/{service}_variables.tf"
+            ],
+            "changes": [
+                {
+                    "file": f"infra/envs/prod/{service}.tf",
+                    "change_type": "provider_change",
+                    "old_value": f'provider = "{from_provider}"',
+                    "new_value": f'provider = "{to_provider}"',
+                    "line_number": random.randint(10, 50)
+                },
+                {
+                    "file": "infra/envs/prod/terraform.tfvars",
+                    "change_type": "variable_update",
+                    "old_value": f'{service}_provider = "{from_provider}"',
+                    "new_value": f'{service}_provider = "{to_provider}"',
+                    "line_number": random.randint(5, 30)
+                },
+                {
+                    "file": f"infra/envs/prod/{service}_variables.tf",
+                    "change_type": "instance_type_change",
+                    "old_value": f'instance_type = "{from_provider}_instance"',
+                    "new_value": f'instance_type = "{to_provider}_instance"',
+                    "line_number": random.randint(15, 40)
+                }
+            ],
+            "terraform_plan": {
+                "resources_to_add": 1,
+                "resources_to_change": 2,
+                "resources_to_destroy": 0,
+                "estimated_cost_change": round(random.uniform(-0.1, 0.1), 2)
+            }
+        }
+        
+        # Generate GitOps metadata
+        gitops_metadata = {
+            "branch_name": f"ai-recommendation/{service}-{int(datetime.now().timestamp()) - random.randint(1000, 10000)}",
+            "commit_hash": f"{random.randint(100000, 999999):06x}",
+            "commit_message": f"AI Recommendation: Move {service} from {from_provider} to {to_provider}",
+            "author": "AI Engine",
+            "pr_number": random.randint(100, 999),
+            "pr_status": random.choice(["open", "merged", "closed"]),
+            "merge_status": random.choice(["pending", "approved", "merged"])
+        }
+        
+        # Generate deployment status
+        deployment_status = {
+            "status": random.choice(["pending", "in_progress", "completed", "failed"]),
+            "environment": "production",
+            "deployment_time": random.randint(30, 300),  # seconds
+            "rollback_available": True,
+            "health_check_status": random.choice(["passing", "warning", "failing"])
+        }
+        
+        iac_changes.append({
+            "timestamp": (datetime.now() - timedelta(hours=random.randint(1, 48))).isoformat() + "Z",
+            "service": service,
+            "change_type": "provider_migration",
+            "from_provider": from_provider,
+            "to_provider": to_provider,
+            "reason": f"Cost optimization: {to_provider.upper()} offers {random.randint(15, 30)}% lower cost",
+            "confidence": round(random.uniform(0.75, 0.95), 2),
+            "predicted_savings": round(random.uniform(0.05, 0.15), 2),
+            "terraform_changes": terraform_changes,
+            "gitops_metadata": gitops_metadata,
+            "deployment_status": deployment_status,
+            "policy_status": random.choice(["auto_approved", "escalated"]),
+            "risk_level": random.choice(["low", "medium", "high"]),
+            "estimated_downtime": random.randint(0, 5),  # minutes
+            "rollback_time": random.randint(2, 10)  # minutes
+        })
+    
+    return {
+        "iac_changes": iac_changes,
+        "total_changes": len(iac_changes),
+        "summary": {
+            "pending_deployments": len([c for c in iac_changes if c["deployment_status"]["status"] == "pending"]),
+            "in_progress_deployments": len([c for c in iac_changes if c["deployment_status"]["status"] == "in_progress"]),
+            "completed_deployments": len([c for c in iac_changes if c["deployment_status"]["status"] == "completed"]),
+            "failed_deployments": len([c for c in iac_changes if c["deployment_status"]["status"] == "failed"]),
+            "total_savings": sum(c["predicted_savings"] for c in iac_changes),
+            "average_confidence": sum(c["confidence"] for c in iac_changes) / len(iac_changes)
+        },
+        "timestamp": datetime.now().isoformat() + "Z"
+    }
+
 @app.post("/api/simulate-price-spike")
 async def simulate_price_spike(spike_data: dict):
     provider = spike_data.get('provider', 'aws')
@@ -389,6 +493,7 @@ with col1:
     GET /healthz - Health check
     GET /api/telemetry - Telemetry data
     GET /api/decisions - AI decisions
+    GET /api/iac-changes - IaC changes
     GET /api/metrics - System metrics
     GET /api/cost-analysis - Cost analysis
     GET /api/policy-visibility - Policy visibility
@@ -500,13 +605,26 @@ if st.button("Test Policy Stats"):
     except Exception as e:
         st.error(f"❌ Connection failed: {e}")
 
+if st.button("Test IaC Changes"):
+    try:
+        response = requests.get("http://localhost:8000/api/iac-changes", timeout=5)
+        if response.status_code == 200:
+            st.success("✅ IaC changes endpoint working!")
+            data = response.json()
+            st.json(data)
+            st.info(f"Total IaC changes: {data.get('total_changes', 0)}")
+        else:
+            st.error(f"❌ IaC changes failed: {response.status_code}")
+    except Exception as e:
+        st.error(f"❌ Connection failed: {e}")
+
 # Live data display
 st.subheader("📊 Live Data Preview")
 
 # Show sample data prominently
 st.markdown("### 🔍 Sample API Responses")
 
-tab1, tab2, tab3, tab4, tab5, tab6, tab7 = st.tabs(["Telemetry", "Decisions", "Health", "Policy", "GitOps", "Economics", "Budget"])
+tab1, tab2, tab3, tab4, tab5, tab6, tab7, tab8 = st.tabs(["Telemetry", "Decisions", "IaC Changes", "Health", "Policy", "GitOps", "Economics", "Budget"])
 
 with tab1:
     st.markdown("**GET /api/telemetry**")
@@ -531,6 +649,17 @@ with tab2:
         st.error(f"Connection failed: {e}")
 
 with tab3:
+    st.markdown("**GET /api/iac-changes**")
+    try:
+        response = requests.get("http://localhost:8000/api/iac-changes", timeout=5)
+        if response.status_code == 200:
+            st.json(response.json())
+        else:
+            st.error(f"Failed to fetch: {response.status_code}")
+    except Exception as e:
+        st.error(f"Connection failed: {e}")
+
+with tab4:
     st.markdown("**GET /healthz**")
     try:
         response = requests.get("http://localhost:8000/healthz", timeout=5)
@@ -541,7 +670,7 @@ with tab3:
     except Exception as e:
         st.error(f"Connection failed: {e}")
 
-with tab4:
+with tab5:
     st.markdown("**GET /api/policy-visibility**")
     try:
         response = requests.get("http://localhost:8000/api/policy-visibility", timeout=5)
@@ -552,7 +681,7 @@ with tab4:
     except Exception as e:
         st.error(f"Connection failed: {e}")
 
-with tab5:
+with tab6:
     st.markdown("**GET /api/gitops-history**")
     try:
         response = requests.get("http://localhost:8000/api/gitops-history", timeout=5)
@@ -563,7 +692,7 @@ with tab5:
     except Exception as e:
         st.error(f"Connection failed: {e}")
 
-with tab6:
+with tab7:
     st.markdown("**GET /api/economics-view**")
     try:
         response = requests.get("http://localhost:8000/api/economics-view", timeout=5)
@@ -574,7 +703,7 @@ with tab6:
     except Exception as e:
         st.error(f"Connection failed: {e}")
 
-with tab7:
+with tab8:
     st.markdown("**GET /api/budget-status**")
     try:
         response = requests.get("http://localhost:8000/api/budget-status", timeout=5)

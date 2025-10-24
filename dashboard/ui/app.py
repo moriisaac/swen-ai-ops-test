@@ -59,9 +59,9 @@ st.markdown("""
 
 # Configuration
 import os
-# Connect to deployed Streamlit apps
-API_URL = st.sidebar.text_input("API URL", os.getenv("API_URL", "https://swen-ai-ops-api.streamlit.app"))
-AI_ENGINE_URL = st.sidebar.text_input("AI Engine URL", os.getenv("AI_ENGINE_URL", "https://swen-ai-ops-engine.streamlit.app"))
+# Connect to local services for development
+API_URL = st.sidebar.text_input("API URL", os.getenv("API_URL", "http://localhost:8001"))
+AI_ENGINE_URL = st.sidebar.text_input("AI Engine URL", os.getenv("AI_ENGINE_URL", "http://localhost:8002"))
 REFRESH_INTERVAL = st.sidebar.slider("Refresh Interval (seconds)", 5, 60, 10)
 
 # Helper functions
@@ -272,65 +272,75 @@ def main():
             st.metric("Active Providers", len(health.get('active_providers', [])))
             st.metric("Services", len(health.get('services', {})))
     
-    # Main content
-    tab1, tab2, tab3, tab4, tab5, tab6, tab7, tab8, tab9, tab10, tab11 = st.tabs([
-        "📊 Overview", 
-        "🤖 AI Decisions", 
-        "💰 Cost Analysis", 
-        "📈 Telemetry", 
-        "⚡ Live Feed",
-        "🏥 Health Check",
-        "📋 GitOps History",
-        "💸 Economics View",
-        "⚖️ FinOps & Policy",
-        "📊 Grafana",
-        "🔍 Prometheus"
-    ])
-    
+        # Main content
+        tab1, tab2, tab3, tab4, tab5, tab6, tab7, tab8, tab9, tab10, tab11, tab12, tab13 = st.tabs([
+            "📊 Overview", 
+            "🤖 AI Decisions", 
+            "🏗️ IaC Changes", 
+            "🚀 Deployments",
+            "💰 Cost Analysis", 
+            "📈 Telemetry", 
+            "⚡ Live Feed",
+            "🏥 Health Check",
+            "📋 GitOps History",
+            "💸 Economics View",
+            "⚖️ FinOps & Policy",
+            "📊 Grafana",
+            "🔍 Prometheus"
+        ])
+
     # Tab 1: Overview
     with tab1:
         render_overview()
-    
+
     # Tab 2: AI Decisions
     with tab2:
         render_ai_decisions()
-    
-    # Tab 3: Cost Analysis
+
+    # Tab 3: IaC Changes
     with tab3:
-        render_cost_analysis()
+        render_iac_changes()
     
-    # Tab 4: Telemetry
+    # Tab 4: Deployments
     with tab4:
-        render_telemetry()
+        render_deployments()
     
-    # Tab 5: Live Feed
+    # Tab 5: Cost Analysis
     with tab5:
-        render_live_feed()
-    
-    # Tab 6: Health Check
+        render_cost_analysis()
+
+    # Tab 5: Telemetry
+    with tab5:
+        render_telemetry()
+
+    # Tab 6: Live Feed
     with tab6:
-        render_health_check()
-    
-    # Tab 7: GitOps History
+        render_live_feed()
+
+    # Tab 7: Health Check
     with tab7:
-        render_gitops_history()
-    
-    # Tab 8: Economics View
+        render_health_check()
+
+    # Tab 8: GitOps History
     with tab8:
-        render_economics_view()
-    
-    # Tab 9: FinOps & Policy
+        render_gitops_history()
+
+    # Tab 9: Economics View
     with tab9:
-        render_finops_policy()
-    
-    # Tab 10: Grafana
+        render_economics_view()
+
+    # Tab 10: FinOps & Policy
     with tab10:
-        render_grafana()
-    
-    # Tab 11: Prometheus
+        render_finops_policy()
+
+    # Tab 11: Grafana
     with tab11:
+        render_grafana()
+
+    # Tab 12: Prometheus
+    with tab12:
         render_prometheus()
-    
+
     # Auto-refresh
     time.sleep(REFRESH_INTERVAL)
     st.rerun()
@@ -1527,6 +1537,149 @@ def render_prometheus():
         for query in quick_queries:
             if st.button(f"Query: {query}", key=f"quick_{query}"):
                 st.code(query)
+
+def render_iac_changes():
+    """Render Infrastructure as Code changes."""
+    st.header("🏗️ Infrastructure as Code Changes")
+    
+    # Fetch IaC changes data
+    iac_data = fetch_data("/api/iac-changes")
+    
+    if not iac_data:
+        st.error("❌ Failed to fetch IaC changes data")
+        return
+    
+    # Summary metrics
+    summary = iac_data.get('summary', {})
+    col1, col2, col3, col4 = st.columns(4)
+    
+    with col1:
+        st.metric("Total Changes", iac_data.get('total_changes', 0))
+    
+    with col2:
+        st.metric("Completed", summary.get('completed_deployments', 0))
+    
+    with col3:
+        st.metric("In Progress", summary.get('in_progress_deployments', 0))
+    
+    with col4:
+        st.metric("Total Savings", f"${summary.get('total_savings', 0):.2f}")
+    
+    # IaC Changes List
+    st.subheader("📋 Recent IaC Changes")
+    
+    iac_changes = iac_data.get('iac_changes', [])
+    
+    if not iac_changes:
+        st.info("No IaC changes found")
+        return
+    
+    for change in iac_changes[:10]:  # Show last 10 changes
+        with st.expander(f"🏗️ {change['service']} - {change['change_type'].replace('_', ' ').title()}", expanded=False):
+            col1, col2 = st.columns(2)
+            
+            with col1:
+                st.markdown(f"**Service:** {change['service']}")
+                st.markdown(f"**Change Type:** {change['change_type'].replace('_', ' ').title()}")
+                st.markdown(f"**From:** {change['from_provider'].upper()}")
+                st.markdown(f"**To:** {change['to_provider'].upper()}")
+                st.markdown(f"**Reason:** {change['reason']}")
+                
+                # Policy Status
+                policy_status = change.get('policy_status', 'unknown')
+                if policy_status == 'auto_approved':
+                    st.success("✅ Auto-Approved")
+                elif policy_status == 'escalated':
+                    st.warning("⚠️ Escalated for Review")
+                else:
+                    st.info(f"📋 {policy_status.title()}")
+            
+            with col2:
+                st.metric("Confidence", f"{change['confidence']:.1%}")
+                st.metric("Predicted Savings", f"${change['predicted_savings']:.2f}")
+                st.metric("Risk Level", change.get('risk_level', 'unknown').title())
+                st.metric("Downtime", f"{change.get('estimated_downtime', 0)} min")
+            
+            # Terraform Changes
+            st.subheader("🔧 Terraform Changes")
+            terraform_changes = change.get('terraform_changes', {})
+            
+            if terraform_changes:
+                col1, col2 = st.columns(2)
+                
+                with col1:
+                    st.markdown("**Files Modified:**")
+                    for file in terraform_changes.get('files_modified', []):
+                        st.code(file)
+                
+                with col2:
+                    st.markdown("**Terraform Plan:**")
+                    plan = terraform_changes.get('terraform_plan', {})
+                    st.metric("Resources to Add", plan.get('resources_to_add', 0))
+                    st.metric("Resources to Change", plan.get('resources_to_change', 0))
+                    st.metric("Resources to Destroy", plan.get('resources_to_destroy', 0))
+                
+                # Detailed Changes
+                st.markdown("**Detailed Changes:**")
+                for change_detail in terraform_changes.get('changes', []):
+                    st.markdown(f"**{change_detail['file']}** (Line {change_detail['line_number']})")
+                    st.markdown(f"**Type:** {change_detail['change_type'].replace('_', ' ').title()}")
+                    
+                    col1, col2 = st.columns(2)
+                    with col1:
+                        st.markdown("**Before:**")
+                        st.code(change_detail['old_value'], language='hcl')
+                    with col2:
+                        st.markdown("**After:**")
+                        st.code(change_detail['new_value'], language='hcl')
+            
+            # GitOps Metadata
+            st.subheader("🔄 GitOps Information")
+            gitops = change.get('gitops_metadata', {})
+            
+            if gitops:
+                col1, col2 = st.columns(2)
+                
+                with col1:
+                    st.markdown(f"**Branch:** `{gitops.get('branch_name', 'N/A')}`")
+                    st.markdown(f"**Commit:** `{gitops.get('commit_hash', 'N/A')}`")
+                    st.markdown(f"**Author:** {gitops.get('author', 'N/A')}")
+                
+                with col2:
+                    st.markdown(f"**PR Number:** #{gitops.get('pr_number', 'N/A')}")
+                    st.markdown(f"**PR Status:** {gitops.get('pr_status', 'N/A').title()}")
+                    st.markdown(f"**Merge Status:** {gitops.get('merge_status', 'N/A').title()}")
+                
+                st.markdown(f"**Commit Message:** {gitops.get('commit_message', 'N/A')}")
+            
+            # Deployment Status
+            st.subheader("🚀 Deployment Status")
+            deployment = change.get('deployment_status', {})
+            
+            if deployment:
+                col1, col2, col3 = st.columns(3)
+                
+                with col1:
+                    status = deployment.get('status', 'unknown')
+                    if status == 'completed':
+                        st.success(f"✅ {status.title()}")
+                    elif status == 'in_progress':
+                        st.info(f"🔄 {status.title()}")
+                    elif status == 'failed':
+                        st.error(f"❌ {status.title()}")
+                    else:
+                        st.warning(f"⏳ {status.title()}")
+                
+                with col2:
+                    st.metric("Environment", deployment.get('environment', 'N/A'))
+                    st.metric("Deployment Time", f"{deployment.get('deployment_time', 0)}s")
+                
+                with col3:
+                    st.metric("Rollback Available", "Yes" if deployment.get('rollback_available', False) else "No")
+                    st.metric("Health Check", deployment.get('health_check_status', 'N/A').title())
+            
+            # Timestamp
+            st.caption(f"**Timestamp:** {change.get('timestamp', 'N/A')}")
 
 if __name__ == "__main__":
     main()
