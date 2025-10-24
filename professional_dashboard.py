@@ -86,8 +86,8 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 # Configuration
-API_URL = st.sidebar.text_input("API URL", os.getenv("API_URL", "https://swen-aiops-api.streamlit.app"))
-AI_ENGINE_URL = st.sidebar.text_input("AI Engine URL", os.getenv("AI_ENGINE_URL", "https://swen-aiops-engine.streamlit.app"))
+API_URL = st.sidebar.text_input("API URL", os.getenv("API_URL", "https://swen-ai-ops-api.streamlit.app"))
+AI_ENGINE_URL = st.sidebar.text_input("AI Engine URL", os.getenv("AI_ENGINE_URL", "https://swen-ai-ops-engine.streamlit.app"))
 
 # Helper functions
 @st.cache_data(ttl=10)

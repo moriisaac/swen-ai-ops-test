@@ -220,6 +220,25 @@ def get_mock_policy_stats():
 # Display API status
 st.success("✅ API service is running!")
 
+# Auto-display mock data
+st.subheader("📊 Live Mock Data")
+col1, col2, col3 = st.columns(3)
+
+with col1:
+    st.metric("Services", "3")
+    st.metric("Providers", "2")
+    st.metric("Total Cost/hr", "$1.35")
+
+with col2:
+    st.metric("AI Decisions", "15")
+    st.metric("Auto-Approved", "12")
+    st.metric("Escalated", "3")
+
+with col3:
+    st.metric("Budget Utilization", "25%")
+    st.metric("Credits Available", "$2,000")
+    st.metric("Savings Potential", "$0.18/hr")
+
 col1, col2 = st.columns(2)
 
 with col1:
@@ -241,7 +260,7 @@ with col1:
 with col2:
     st.subheader("🔗 Connection Info")
     st.info("""
-    **API URL:** `https://swen-aiops-api.streamlit.app`
+    **API URL:** `https://swen-ai-ops-api.streamlit.app`
     **Status:** Running (Simulated)
     **Mode:** Mock Data
     """)
@@ -292,27 +311,37 @@ if st.button("Test Policy Stats"):
 # Live data display
 st.subheader("📊 Live Data Preview")
 
+# Show sample data prominently
+st.markdown("### 🔍 Sample API Responses")
+
 tab1, tab2, tab3, tab4, tab5, tab6, tab7 = st.tabs(["Telemetry", "Decisions", "Health", "Policy", "GitOps", "Economics", "Budget"])
 
 with tab1:
+    st.markdown("**GET /api/telemetry**")
     st.json(get_mock_telemetry())
 
 with tab2:
+    st.markdown("**GET /api/decisions**")
     st.json(get_mock_decisions())
 
 with tab3:
+    st.markdown("**GET /healthz**")
     st.json(get_mock_health())
 
 with tab4:
+    st.markdown("**GET /api/policy-visibility**")
     st.json(get_mock_policy_visibility())
 
 with tab5:
+    st.markdown("**GET /api/gitops-history**")
     st.json(get_mock_gitops_history())
 
 with tab6:
+    st.markdown("**GET /api/economics-view**")
     st.json(get_mock_economics_view())
 
 with tab7:
+    st.markdown("**GET /api/budget-status**")
     st.json(get_mock_budget_status())
 
 # Keep the app running

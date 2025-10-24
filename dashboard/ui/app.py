@@ -60,8 +60,8 @@ st.markdown("""
 # Configuration
 import os
 # Connect to deployed Streamlit apps
-API_URL = st.sidebar.text_input("API URL", os.getenv("API_URL", "https://swen-aiops-api.streamlit.app"))
-AI_ENGINE_URL = st.sidebar.text_input("AI Engine URL", os.getenv("AI_ENGINE_URL", "https://swen-aiops-engine.streamlit.app"))
+API_URL = st.sidebar.text_input("API URL", os.getenv("API_URL", "https://swen-ai-ops-api.streamlit.app"))
+AI_ENGINE_URL = st.sidebar.text_input("AI Engine URL", os.getenv("AI_ENGINE_URL", "https://swen-ai-ops-engine.streamlit.app"))
 REFRESH_INTERVAL = st.sidebar.slider("Refresh Interval (seconds)", 5, 60, 10)
 
 # Helper functions
