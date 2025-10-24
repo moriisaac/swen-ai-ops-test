@@ -164,19 +164,76 @@ class CostOptimizationEngine:
         return best_provider, decision
     
     def update_infrastructure(self, service: str, provider: str, decision: dict) -> bool:
-        """Update infrastructure configuration via GitOps with STRICT branch management."""
+        """Update infrastructure configuration via GitOps with strict branch management."""
         try:
-            # EMERGENCY: Completely disable branch creation until cleanup is complete
-            logger.warning(f"🚨 BRANCH CREATION DISABLED: Skipping infrastructure update for {service}")
-            logger.warning(f"Reason: Emergency branch cleanup in progress. Current branch count exceeds safe limits.")
+            # Check if we can create a new branch using branch manager
+            if self.branch_manager:
+                can_create, reason = self.branch_manager.can_create_branch()
+                if not can_create:
+                    logger.warning(f"Cannot create branch for {service}: {reason}")
+                    
+                    # Enforce cleanup and try again
+                    self.branch_manager.enforce_branch_limit()
+                    can_create, reason = self.branch_manager.can_create_branch()
+                    
+                    if not can_create:
+                        logger.error(f"Still cannot create branch after cleanup: {reason}")
+                        return False
+                
+                # Create branch safely
+                success, branch_name = self.branch_manager.create_branch_safely(service)
+                if not success:
+                    logger.error(f"Failed to create branch: {branch_name}")
+                    return False
+            else:
+                # Fallback to old method if branch manager not available
+                branch_name = f"ai-recommendation/{service}-{int(time.time())}"
+                try:
+                    subprocess.run(
+                        ["git", "checkout", "-b", branch_name],
+                        cwd=self.repo_path,
+                        check=True
+                    )
+                except subprocess.CalledProcessError as e:
+                    logger.error(f"Failed to create branch {branch_name}: {e}")
+                    return False
             
-            # Log the decision without creating a branch
-            decision['git_branch'] = 'BRANCH_CREATION_DISABLED'
-            decision['commit_sha'] = 'N/A'
-            decision['status'] = 'skipped_due_to_cleanup'
+            # Update Terraform variables
+            with open(self.terraform_vars_path, 'r') as f:
+                content = f.read()
+            
+            # Update the provider for the service
+            pattern = f'{service}_provider = "[a-z]+"'
+            import re
+            new_content = re.sub(
+                pattern, 
+                f'{service}_provider = "{provider}"',
+                content
+            )
+            
+            # Write changes
+            with open(self.terraform_vars_path, 'w') as f:
+                f.write(new_content)
+            
+            # Commit changes
+            self.git_repo.index.add([self.terraform_vars_path])
+            self.git_repo.index.commit(f"AI Recommendation: Move {service} to {provider}")
+            
+            # Try to push to remote (graceful failure)
+            try:
+                origin = self.git_repo.remote(name='origin')
+                origin.push(branch_name)
+                logger.info(f"✅ Pushed branch {branch_name} to remote")
+            except Exception as e:
+                logger.warning(f"⚠️ Could not push to remote: {e}. Branch saved locally.")
+            
+            # Log the decision
+            decision['git_branch'] = branch_name
+            decision['commit_sha'] = self.git_repo.head.commit.hexsha
             self._save_decision(decision)
             
-            return False  # Always return False to prevent any branch creation
+            logger.info(f"✅ Successfully created branch {branch_name} for {service}")
+            return True
             
         except Exception as e:
             logger.error(f"Failed to update infrastructure: {e}")

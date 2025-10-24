@@ -1,0 +1,60 @@
+{
+  "timestamp": "2025-10-23T19:56:14.323080+00:00",
+  "health_status": {
+    "timestamp": "2025-10-23T19:56:14.323045+00:00",
+    "total_branches": 5,
+    "max_branches": 10,
+    "alert_threshold": 8.0,
+    "health_status": "healthy",
+    "alerts": [],
+    "recommendations": []
+  },
+  "branches": [
+    {
+      "name": "ai-recommendation/service2-1761249367",
+      "created_date": "2025-10-23 22:56:07 +0300",
+      "last_commit_hash": "5beb1c8ecc9b3fdb9d43276e8371ebbe7aec7cfd",
+      "last_commit_date": "2025-10-23 22:56:07 +0300",
+      "last_commit_message": "AI Recommendation: Move service2 to aws"
+    },
+    {
+      "name": "ai-recommendation/service2-1761249357",
+      "created_date": "2025-10-23 22:55:57 +0300",
+      "last_commit_hash": "6b28af014fc5ef25c34c03a10a7e57c3cfdc8653",
+      "last_commit_date": "2025-10-23 22:55:57 +0300",
+      "last_commit_message": "AI Recommendation: Move service2 to aws"
+    },
+    {
+      "name": "ai-recommendation/service1-1761249354",
+      "created_date": "2025-10-23 22:55:55 +0300",
+      "last_commit_hash": "56f24875638cbd3a314101ed5b94309dabccfbfc",
+      "last_commit_date": "2025-10-23 22:55:55 +0300",
+      "last_commit_message": "AI Recommendation: Move service1 to alibaba"
+    },
+    {
+      "name": "ai-recommendation/service1-1761249352",
+      "created_date": "2025-10-23 22:55:52 +0300",
+      "last_commit_hash": "c2b3f813779e330b00b3fc65a207806dd40b25e9",
+      "last_commit_date": "2025-10-23 22:55:52 +0300",
+      "last_commit_message": "AI Recommendation: Move service1 to alibaba"
+    },
+    {
+      "name": "ai-recommendation/service3-1761249339",
+      "created_date": "2025-10-23 22:55:39 +0300",
+      "last_commit_hash": "20e1f4291f27f9d692f83d5d645bea4e94cf851e",
+      "last_commit_date": "2025-10-23 22:55:39 +0300",
+      "last_commit_message": "AI Recommendation: Move service3 to aws"
+    }
+  ],
+  "summary": {
+    "total_branches": 5,
+    "oldest_branch": "ai-recommendation/service3-1761249339",
+    "newest_branch": "ai-recommendation/service2-1761249367",
+    "cleanup_needed": false
+  },
+  "actions_taken": [],
+  "next_steps": [
+    "Continue monitoring",
+    "Review AI engine logs for any issues"
+  ]
+}

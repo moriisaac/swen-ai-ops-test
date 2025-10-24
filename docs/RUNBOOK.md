@@ -66,7 +66,7 @@ export CI_PROJECT_ID="your-project-id"
 ### Step 1: Clone Repository
 
 ```bash
-git clone https://github.com/swen/swen-aio-test.git
+git clone https://github.com/moriisaac/swen-aio-test.git
 cd swen-aio-test
 ```
 

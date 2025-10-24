@@ -1,0 +1,51 @@
+{
+  "timestamp": "2025-10-23T20:05:22.771752+00:00",
+  "total_branches": 5,
+  "max_branches": 5,
+  "status": "healthy",
+  "alerts": [],
+  "branches": [
+    {
+      "name": "ai-recommendation/service1-1761249742",
+      "created_date": "2025-10-23 23:02:22 +0300",
+      "commit_hash": "fb4163ed4f22612dbc6c4b00dd88556d8ffd4780",
+      "commit_message": "AI Recommendation: Move service1 to alibaba",
+      "age_hours": 0.050156758611111116,
+      "needs_alert": false
+    },
+    {
+      "name": "ai-recommendation/service1-1761249762",
+      "created_date": "2025-10-23 23:02:42 +0300",
+      "commit_hash": "a2f16190ef2864615524a37f5ec0d791c99db34d",
+      "commit_message": "AI Recommendation: Move service1 to alibaba",
+      "age_hours": 0.044604298055555554,
+      "needs_alert": false
+    },
+    {
+      "name": "ai-recommendation/service2-1761249728",
+      "created_date": "2025-10-23 23:02:08 +0300",
+      "commit_hash": "382c046e13c765ecea11e0e576cb8414aa943679",
+      "commit_message": "AI Recommendation: Move service2 to aws",
+      "age_hours": 0.054051889722222225,
+      "needs_alert": false
+    },
+    {
+      "name": "ai-recommendation/service2-1761249747",
+      "created_date": "2025-10-23 23:02:27 +0300",
+      "commit_hash": "a75daf4eacfcb9053987ded3dd838130449a9e43",
+      "commit_message": "AI Recommendation: Move service2 to aws",
+      "age_hours": 0.048780131944444444,
+      "needs_alert": false
+    },
+    {
+      "name": "ai-recommendation/service2-1761249767",
+      "created_date": "2025-10-23 23:02:47 +0300",
+      "commit_hash": "601bfb577ff88fe13e06f2592766522c766b02e7",
+      "commit_message": "AI Recommendation: Move service2 to aws",
+      "age_hours": 0.04323009916666667,
+      "needs_alert": false
+    }
+  ],
+  "can_create_new": false,
+  "recommendations": []
+}
