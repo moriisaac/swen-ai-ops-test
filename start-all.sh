@@ -82,18 +82,27 @@ cd ../..
 sleep 3
 
 # Start Dashboard UI
-echo -e "${GREEN}[4/4] Starting Dashboard UI...${NC}"
+echo -e "${GREEN}[4/5] Starting Dashboard UI...${NC}"
 cd dashboard/ui
 nohup streamlit run app.py --server.port 8501 --server.headless true > ../../logs/ui.log 2>&1 &
 UI_PID=$!
 echo "  ✓ Dashboard UI started (PID: $UI_PID)"
 cd ../..
 
+sleep 2
+
+# Start AI Engine UI
+echo -e "${GREEN}[5/5] Starting AI Engine UI...${NC}"
+nohup streamlit run ai_engine_app.py --server.port 8002 --server.headless true > logs/ai_engine_ui.log 2>&1 &
+AI_UI_PID=$!
+echo "  ✓ AI Engine UI started (PID: $AI_UI_PID)"
+
 # Save PIDs to file for easy shutdown
 echo "$SIMULATOR_PID" > .pids
 echo "$ENGINE_PID" >> .pids
 echo "$API_PID" >> .pids
 echo "$UI_PID" >> .pids
+echo "$AI_UI_PID" >> .pids
 
 echo ""
 echo "=================================================="
@@ -102,6 +111,7 @@ echo "=================================================="
 echo ""
 echo "Access Points:"
 echo "  Dashboard UI:  http://localhost:8501"
+echo "  AI Engine UI: http://localhost:8002"
 echo "  API Docs:      http://localhost:8001/docs"
 echo "  Health Check:  http://localhost:8001/healthz"
 echo ""
@@ -110,6 +120,7 @@ echo "  Simulator:     logs/simulator.log"
 echo "  AI Engine:     logs/engine.log"
 echo "  API:           logs/api.log"
 echo "  Dashboard:     logs/ui.log"
+echo "  AI Engine UI:  logs/ai_engine_ui.log"
 echo ""
 echo "To stop all services, run:"
 echo "  ./stop-all.sh"
