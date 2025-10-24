@@ -9,6 +9,12 @@ import numpy as np
 from git import Repo, GitCommandError
 import hcl2
 
+# Import policy engine
+try:
+    from .policy_engine import PolicyEngine, ApprovalStatus
+except ImportError:
+    from policy_engine import PolicyEngine, ApprovalStatus
+
 # Configure logging
 logging.basicConfig(
     level=logging.INFO,
@@ -40,6 +46,9 @@ class CostOptimizationEngine:
         
         # Initialize branch manager
         self.branch_manager = self._init_branch_manager()
+        
+        # Initialize policy engine
+        self.policy_engine = PolicyEngine()
     
     def _init_git_repo(self):
         """Initialize git repository handler."""
@@ -146,6 +155,11 @@ class CostOptimizationEngine:
         if best_provider == current_provider:
             return None, {}
         
+        # Calculate predicted savings
+        current_cost = metrics.get(current_provider, {}).get('cost', 0)
+        recommended_cost = metrics.get(best_provider, {}).get('cost', 0)
+        predicted_savings = current_cost - recommended_cost
+        
         # Prepare decision record
         decision = {
             'timestamp': datetime.utcnow().isoformat(),
@@ -155,17 +169,40 @@ class CostOptimizationEngine:
             'scores': scores,
             'metrics': metrics,
             'confidence': scores[best_provider]['total'],
-            'explanation': (
+            'predicted_savings': predicted_savings,
+            'reasoning': (
                 f"Recommended moving {service} from {current_provider} to {best_provider} "
                 f"due to better cost/performance (score: {scores[best_provider]['total']:.2f})"
             )
         }
         
+        # Evaluate policy
+        policy_decision = self.policy_engine.evaluate_policy(service, decision, metrics)
+        
+        # Add policy information to decision
+        decision.update({
+            'policy_status': policy_decision.status.value,
+            'policy_reasoning': policy_decision.reasoning,
+            'policy_violations': policy_decision.policy_violations,
+            'cost_delta_percent': policy_decision.cost_delta_percent,
+            'budget_impact': policy_decision.budget_impact,
+            'credit_utilization': policy_decision.credit_utilization
+        })
+        
         return best_provider, decision
     
     def update_infrastructure(self, service: str, provider: str, decision: dict) -> bool:
-        """Update infrastructure configuration via GitOps with strict branch management."""
+        """Update infrastructure configuration via GitOps with policy-based approval."""
         try:
+            # Check policy status
+            policy_status = decision.get('policy_status', 'pending')
+            
+            # Only proceed with auto-approved decisions
+            if policy_status != 'auto_approved':
+                logger.info(f"Skipping infrastructure update for {service}: {policy_status}")
+                logger.info(f"Policy reasoning: {decision.get('policy_reasoning', 'No reasoning')}")
+                return False
+            
             # Check if we can create a new branch using branch manager
             if self.branch_manager:
                 can_create, reason = self.branch_manager.can_create_branch()
@@ -233,6 +270,17 @@ class CostOptimizationEngine:
             self._save_decision(decision)
             
             logger.info(f"✅ Successfully created branch {branch_name} for {service}")
+            
+            # Update budget with cost change
+            budget_impact = decision.get('budget_impact', 0)
+            if budget_impact != 0:
+                self.policy_engine.update_budget(budget_impact)
+            
+            # Apply credits if available
+            credit_utilization = decision.get('credit_utilization', 0)
+            if credit_utilization > 0:
+                self.policy_engine.apply_credits(credit_utilization)
+            
             return True
             
         except Exception as e:
